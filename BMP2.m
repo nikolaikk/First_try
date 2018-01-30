@@ -1,5 +1,5 @@
 %%          Beam Propagation Method
-
+%% 		Added this code line to test
 zo = 0;
 zend = 3000;    % micrometer
 z_mesh = 0.3;    % micrometer
