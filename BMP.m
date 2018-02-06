@@ -1,87 +1,100 @@
+clear
+%%          Beam Propagaton Method
 
-zo = 0;
-z_length = 0.3; %m
-Nz = 200; 
-delta_z = (z_length-zo)/Nz; % step size
-z=zo:delta_z:z_length;
-% z=z(1:100);
+%%          Initialization
 
-Lambda = 500e-9;
-no=1;
-ko=2*pi/Lambda*no;
-n=1;
-k=2*pi/Lambda*n;
+zo = 0;                     % micrometer
+zend = 1600;                % micrometer
+z_mesh = 1;                 % micrometer
+ratio = 1;
+xo = -200;                  % micrometer
+xend = -xo;                 % micrometer
+x_mesh = z_mesh/ratio;      % micrometer
+Lambda = 1.06;              % micrometer
+wo = 10;                    % micrometer
+no = 1;
 
-xo=-0.001; %mvim
-xend=-xo; %m
-delta_x=(xend-xo)/(Nz-1);
+x = xo:x_mesh:xend-x_mesh;
+z = zo:z_mesh:zend-z_mesh;
+Nz = length(z);
+Nx = length(x);
 
-x=xo:delta_x:xend;
-wo=0.0001; %m
-f=zeros(Nz);
-f(:,1)=exp(-(x/wo).^2);
-
+ko = 2*pi/Lambda*no;
+n = 1;
+k = 2*pi/Lambda*n;
+f = zeros(Nx);
+f(:,1) = exp(-(x/wo).^2);
 
 %% Define L matrix
-L = zeros(Nz);
-for i=1:Nz
-L(i,i)=-2+(ko^2-k^2)*delta_x^2; % in free space^2 - in material^2
+L = zeros(Nx);
+for i=1:Nx
+    L(i,i)=-2+(ko^2-k^2)*x_mesh^2; % in free space^2 - in material^2
 end
-for i=2:(Nz)
-L(i,i-1)=1;
-L(i-1,i)=1;
+for i=2:(Nx)
+    L(i,i-1)=1;
+    L(i-1,i)=1;
 end
-L = (1/delta_x^2)*L;
+L = (1/x_mesh^2)*L;
 %%
-E = eye(Nz);
+E = eye(Nx);
 
 
 %% Psi evolution
 
-const_to_simplify = ((E+delta_z*L/(4*1j*ko))*pinv(E-delta_z*L/(4*1j*ko)));
+const_to_simplify = (pinv(E-x_mesh*L/(4*1j*ko))*(E+x_mesh*L/(4*1j*ko)));
 % const_to_simplify(find(const_to_simplify<1e-14))=0
 for i=1:Nz-1
 % for i=1:2
 
 f(:,i+1)= const_to_simplify*f(:,i);
-
+% disp(i)
 end
 
 
-[Z, X] = meshgrid(delta_z*(1:Nz),delta_x*(1:Nz));
+[Z, X] = meshgrid(z,x);
 I = conj(f).*f;
-
-%     I(find(I<0.01)) = -0.2;
-I_analytic = function_analytic_BMP(Lambda,Nz,wo,z_length,1);
-%     figure,mesh(Z,X,(I));
-%     figure,mesh(Z,X,((I-I_analytic).^2));
-%     axis vis3d;
-%     shading interp;
-%     xlabel ('z (m)');
-%     ylabel ('x (m)');
-%     zlabel I;
-%     rotate3d on
+% I= real(f);
 
 
-
-figure,mesh(Z,X,(I));
-axis vis3d;
+figure('Name','Profile Numeric Gaussian Beam','NumberTitle','off'), imagesc(z,x,I)
+figure('Name','Numeric Gaussian Beam','NumberTitle','off');
+mesh(Z,X,(I));
+axis tight;
 shading interp;
-xlabel ('z (m)');
-ylabel ('x (m)');
-zlabel I;
+xlabel ('z (\mum)');
+ylabel ('x (\mum)');
+% I_rf= real(f);
+
+zlabel Intensity;
 rotate3d on
 
-% figure,mesh(Z,X,((I-I_analytic).^2));
-% axis normal;
+% I_analytic = function_analytic_BMP(Lambda,wo,x,z,true);
+% 
+% figure('Name','Intensity Difference','NumberTitle','off');
+% mesh(Z,X,((I-I_analytic).^2));
+% figure('Name','Intensity Difference Profile','NumberTitle','off'), imagesc(z,x,(I-I_analytic).^2)
+% axis tight;
 % shading interp;
-% xlabel ('z (m)');
-% ylabel ('x (m)');
-% zlabel I;
-% zlim([0,1]);
-% xlim([0,z_length]);
-% ylim([-xo,xo]);
+% xlabel ('z (\mum)');
+% ylabel ('x (\mum)');
+% zlabel Intensity;
 % rotate3d on
+% zlim([0,1]);
+% xlim([0,zend]);
+% ylim([xo,-xo]);
 
+% disp(norm(I-I_analytic))
 
+figure, imshow(theta_angle(I(1:size(I,1)/2,:),z,x))
+ed = edge(theta_angle(I(1:size(I,1)/2,:),z,x));
+ed = flipud(ed);
+[yy1, xx1] = find(ed == 1);
+figure, plot(xx1,yy1);
 
+hold on
+index = (xx1' >= max(xx1')/2);
+p = polyfit(xx1(index)',yy1(index)',1);
+yfit = p(2)+xx1'.*p(1)*1;
+plot(xx1',yfit);
+divergence_angle = atan(p(1));
+disp(divergence_angle)
