@@ -16,7 +16,9 @@ function I = function_analytic_BMP(Lambda,wo,x,z,bla)
     
     if bla == true  
         [Z, X] = meshgrid(z,x);
-        figure('Name','Analytic Gaussian Beam','NumberTitle','off'),mesh(Z,X,(I));
+        mesh(Z,X,(I));
+        view([0,90]);
+        title('Analytic Gaussian Beam'),
         axis tight;
         shading interp;
         xlabel ('z (\mum)');

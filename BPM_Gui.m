@@ -1,4 +1,4 @@
-function [ varargout ] = Beam_Propagation_Method_GUI ( varargin )
+function [ varargout ] = BMP_GUI ( varargin )
 
 %% GUI for Beam Propagation Method (BPM)
 %

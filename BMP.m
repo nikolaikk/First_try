@@ -1,7 +1,7 @@
 clear
-%%          Beam Propagaton Method
-
-%%          Initialization
+%%              Beam Propagaton Method
+    
+%%              Initialization
 
 zo = 0;                     % micrometer
 zend = 1600;                % micrometer
@@ -25,7 +25,8 @@ k = 2*pi/Lambda*n;
 f = zeros(Nx);
 f(:,1) = exp(-(x/wo).^2);
 
-%% Define L matrix
+%%              Definition of L matrix
+
 L = zeros(Nx);
 for i=1:Nx
     L(i,i)=-2+(ko^2-k^2)*x_mesh^2; % in free space^2 - in material^2
@@ -35,12 +36,10 @@ for i=2:(Nx)
     L(i-1,i)=1;
 end
 L = (1/x_mesh^2)*L;
-%%
+
+%%              Psi evolution
+
 E = eye(Nx);
-
-
-%% Psi evolution
-
 const_to_simplify = (pinv(E-x_mesh*L/(4*1j*ko))*(E+x_mesh*L/(4*1j*ko)));
 % const_to_simplify(find(const_to_simplify<1e-14))=0
 for i=1:Nz-1
@@ -50,51 +49,28 @@ f(:,i+1)= const_to_simplify*f(:,i);
 % disp(i)
 end
 
-
+%%              Plot
 [Z, X] = meshgrid(z,x);
 I = conj(f).*f;
 % I= real(f);
 
+% Plot 
+figure;
+set(gcf,'Position',[0,0,800,1200])
+subplot(3,1,1)
+mesh(Z,X,(I)),view([0,90])
+axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel Intensity,...
+    rotate3d on, title('Numeric Gaussian Beam');
 
-figure('Name','Profile Numeric Gaussian Beam','NumberTitle','off'), imagesc(z,x,I)
-figure('Name','Numeric Gaussian Beam','NumberTitle','off');
-mesh(Z,X,(I));
-axis tight;
-shading interp;
-xlabel ('z (\mum)');
-ylabel ('x (\mum)');
-% I_rf= real(f);
+subplot(3,1,2)
+I_analytic = function_analytic_BMP(Lambda,wo,x,z,true); 
 
-zlabel Intensity;
-rotate3d on
-
-% I_analytic = function_analytic_BMP(Lambda,wo,x,z,true);
-% 
-% figure('Name','Intensity Difference','NumberTitle','off');
-% mesh(Z,X,((I-I_analytic).^2));
-% figure('Name','Intensity Difference Profile','NumberTitle','off'), imagesc(z,x,(I-I_analytic).^2)
-% axis tight;
-% shading interp;
-% xlabel ('z (\mum)');
-% ylabel ('x (\mum)');
-% zlabel Intensity;
-% rotate3d on
-% zlim([0,1]);
-% xlim([0,zend]);
-% ylim([xo,-xo]);
+subplot(3,1,3)
+mesh(Z,X,((I-I_analytic).^2)),view([0,90])
+axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)');
+zlabel Intensity, rotate3d on, zlim([0,1]), xlim([0,zend]), ylim([xo,-xo]),...
+    title('Intensity Difference');
 
 % disp(norm(I-I_analytic))
 
-figure, imshow(theta_angle(I(1:size(I,1)/2,:),z,x))
-ed = edge(theta_angle(I(1:size(I,1)/2,:),z,x));
-ed = flipud(ed);
-[yy1, xx1] = find(ed == 1);
-figure, plot(xx1,yy1);
-
-hold on
-index = (xx1' >= max(xx1')/2);
-p = polyfit(xx1(index)',yy1(index)',1);
-yfit = p(2)+xx1'.*p(1)*1;
-plot(xx1',yfit);
-divergence_angle = atan(p(1));
-disp(divergence_angle)
+divergence_angle = theta_angle(I,'no plot');
