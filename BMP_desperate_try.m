@@ -1,26 +1,27 @@
+
 zo = 0;
-zend = 3000;    % micrometer
+zend = 5000;    % micrometer
 z_mesh = 0.3;    % micrometer
 z = zo:z_mesh:zend-z_mesh;
 Nz = length(z);
 
-Lambda = 0.6;   % micrometer
+Lambda = 1.2;   % micrometer
 no = 1;
 ko = 2*pi/Lambda*no;
 n = 1;
 k = 2*pi/Lambda*n;
 
-xo = -100; %mvim
+xo = -200; %mvim
 xend = -xo; %m
 x_mesh = z_mesh;
 x = xo:x_mesh:xend-x_mesh;
 Nx = length(x);
-wo = 10; % micrometer
+wo = 30; % micrometer
 % f = zeros(Nx);
 
 dkx = pi/(xo)*(length(x)-1)/length(x);
 kx = ( (-length(x)/2):(length(x)/2-1) )*dkx;
-
+N = 0;
 
 %************Input Field  Parameters****************%
 
@@ -34,11 +35,11 @@ Output(:,1) = abs(fz).^2;
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 Fz=ifftshift(ifft(ifftshift(fz)));
-figure, plot(real(Fz))
+% figure, plot(real(Fz))
 Fz_d=Fz.*exp(1i*(kx.^2)./(2*ko*(no))*z_mesh/2);
-figure, plot(real(Fz))
+% figure, plot(real(Fz))
 fz=fftshift(fft(fftshift(Fz_d)));
-figure, plot(fz)
+% figure, plot(fz)
 
 for itr=1:Nz-1
     
@@ -53,9 +54,12 @@ for itr=1:Nz-1
 end
 
 [Z, X] = meshgrid(z,x);
+figure
 surf(Z,X,Output)
 shading flat
 xlabel ('z (\mum)');
 ylabel ('x (\mum)');
 zlabel Intensity;
 rotate3d on
+
+% imshow(imbinarize(Output,edge))

@@ -1,36 +1,38 @@
-%%          Beam Propagation Method
+clear
+%%          Beam Propagaton Method
 
-%%		One more line from another computer
-zo = 0;
-zend = 3000;    % micrometer
-z_mesh = 0.3;    % micrometer
+%%          Initialization
+
+zo = 0;                     % micrometer
+zend = 1600;                % micrometer
+z_mesh = 1;                 % micrometer
+ratio = 1;
+xo = -200;                  % micrometer
+xend = -xo;                 % micrometer
+x_mesh = z_mesh/ratio;      % micrometer
+Lambda = 1.06;              % micrometer
+wo = 10;                    % micrometer
+no = 1;
+
+x = xo:x_mesh:xend-x_mesh;
 z = zo:z_mesh:zend-z_mesh;
 Nz = length(z);
+Nx = length(x);
 
-Lambda = 0.6;   % micrometer
-no = 1;
 ko = 2*pi/Lambda*no;
 n = 1;
 k = 2*pi/Lambda*n;
-
-xo = -100; %mvim
-xend = -xo; %m
-x_mesh = z_mesh;
-x = xo:x_mesh:xend-x_mesh;
-Nx = length(x);
-wo = 10; % micrometer
 f = zeros(Nx);
 f(:,1) = exp(-(x/wo).^2);
-
 
 %% Define L matrix
 L = zeros(Nx);
 for i=1:Nx
-L(i,i)=-2+(ko^2-k^2)*x_mesh^2; % in free space^2 - in material^2
+    L(i,i)=-2+(ko^2-k^2)*x_mesh^2; % in free space^2 - in material^2
 end
 for i=2:(Nx)
-L(i,i-1)=1;
-L(i-1,i)=1;
+    L(i,i-1)=1;
+    L(i-1,i)=1;
 end
 L = (1/x_mesh^2)*L;
 %%
@@ -51,13 +53,18 @@ end
 
 [Z, X] = meshgrid(z,x);
 I = conj(f).*f;
+% I= real(f);
 
+
+figure('Name','Profile Numeric Gaussian Beam','NumberTitle','off'), imagesc(z,x,I)
 figure('Name','Numeric Gaussian Beam','NumberTitle','off');
 mesh(Z,X,(I));
 axis tight;
 shading interp;
 xlabel ('z (\mum)');
 ylabel ('x (\mum)');
+% I_rf= real(f);
+
 zlabel Intensity;
 rotate3d on
 
@@ -65,6 +72,7 @@ rotate3d on
 % 
 % figure('Name','Intensity Difference','NumberTitle','off');
 % mesh(Z,X,((I-I_analytic).^2));
+% figure('Name','Intensity Difference Profile','NumberTitle','off'), imagesc(z,x,(I-I_analytic).^2)
 % axis tight;
 % shading interp;
 % xlabel ('z (\mum)');
@@ -74,3 +82,19 @@ rotate3d on
 % zlim([0,1]);
 % xlim([0,zend]);
 % ylim([xo,-xo]);
+
+% disp(norm(I-I_analytic))
+
+figure, imshow(theta_angle(I(1:size(I,1)/2,:),z,x))
+ed = edge(theta_angle(I(1:size(I,1)/2,:),z,x));
+ed = flipud(ed);
+[yy1, xx1] = find(ed == 1);
+figure, plot(xx1,yy1);
+
+hold on
+index = (xx1' >= max(xx1')/2);
+p = polyfit(xx1(index)',yy1(index)',1);
+yfit = p(2)+xx1'.*p(1)*1;
+plot(xx1',yfit);
+divergence_angle = atan(p(1));
+disp(divergence_angle)
