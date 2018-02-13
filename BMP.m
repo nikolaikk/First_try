@@ -4,15 +4,104 @@ clear
 %%              Initialization
 
 zo = 0;                     % micrometer
-zend = 1600;                % micrometer
+zend = 1200;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
 xo = -200;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 1.06;              % micrometer
-wo = 10;                    % micrometer
+Lambda = 10;              % micrometer
+wo = 40;                    % micrometer
 no = 1;
+
+[f,x,z] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+
+%%              Convergence
+ 
+    step = 0.002;
+    err = [];
+    err1 = err;
+    err2 = err;
+    % Number_Nz = ones(round((zend-zo)/step)+1,1)';
+    Number_Nz = [];
+    ii = 1;
+
+    tic
+    from = 1;
+    to = 0.5;
+    for i_z_mesh = z_mesh*(from:-step:to)
+%         disp(i_z_mesh)
+%         x_mesh = i_z_mesh/ratio;      % micrometer
+        [f,x,z] = solve_BPM(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+
+        I = conj(f).*f;
+%         I_analytic = function_analytic_BMP(Lambda,wo,x,z);
+        I_analytic = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no, 'alll',false);
+
+        Number_Nz(ii) = length(z);
+        
+%         err1(ii) = 1/Number_Nz(ii)*norm(I-I_analytic,2);
+%         err2(ii) = 1/Number_Nz(ii)*norm(I-I_analytic,inf);
+        
+        err1(ii) = 1/Number_Nz(ii)*sqrt(sum(sum((I-I_analytic).^2)));
+        err2(ii) = 1/Number_Nz(ii)*max(max(I-I_analytic));
+
+        clc;
+        disp(strcat(num2str(ii),' /  ', num2str(round((from-to)/step))));
+        ii=ii+1;
+    end
+    toc
+
+    subplot(2,1,1),plot(Number_Nz,err1),title('L2 norm error')
+    xlabel('Number of grid points'),ylabel('Error')
+    set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+
+    subplot(2,1,2), plot(Number_Nz,err2),title('Lmax norm error')
+    xlabel('Number of grid points'),ylabel('Error')
+    set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+
+%%              Plot
+
+
+% [Z, X] = meshgrid(z,x);
+% I = conj(f).*f;
+% % I= real(f);
+% 
+% % Plot 
+% fig1 = figure;
+% set(fig1,'Position',[0,0,800,1200])
+% subplot(3,1,1)
+% mesh(Z,X,(I)),view([0,90])
+% axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel Intensity,...
+%     rotate3d on, title('Crank–Nicolson BPM'), colormap jet;
+% 
+% subplot(3,1,2)
+% I_analytic = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'real',true);
+% 
+% subplot(3,1,3)
+% % I_FFT = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,true);
+% I_analytic = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'alll',true);
+% 
+% % subplot(3,1,3)
+% % mesh(Z,X,(I-I_analytic)),view([0,90])
+% % axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)');
+% % zlabel Intensity, rotate3d on, zlim([0,1]), xlim([0,zend]), ylim([xo,-xo]),...
+% %     title('Intensity Difference');
+% 
+% % disp(norm(I-I_analytic))
+% 
+% fig2 = copyobj(fig1,0);
+% set(fig2, 'Position', [860,0,800,1200])
+% subplot(3,1,1),view([0,-90,0]);
+% subplot(3,1,2),view([0,-90,0]);
+% subplot(3,1,3),view([0,-90,0]);
+% 
+% divergence_angle = theta_angle(I_analytic,Lambda,'plot');
+
+
+
+%%              Main BPM funciton 
+function [f,x,z] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no)
 
 x = xo:x_mesh:xend-x_mesh;
 z = zo:z_mesh:zend-z_mesh;
@@ -48,29 +137,4 @@ for i=1:Nz-1
 f(:,i+1)= const_to_simplify*f(:,i);
 % disp(i)
 end
-
-%%              Plot
-[Z, X] = meshgrid(z,x);
-I = conj(f).*f;
-% I= real(f);
-
-% Plot 
-figure;
-set(gcf,'Position',[0,0,800,1200])
-subplot(3,1,1)
-mesh(Z,X,(I)),view([0,90])
-axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel Intensity,...
-    rotate3d on, title('Numeric Gaussian Beam');
-
-subplot(3,1,2)
-I_analytic = function_analytic_BMP(Lambda,wo,x,z,true); 
-
-subplot(3,1,3)
-mesh(Z,X,((I-I_analytic).^2)),view([0,90])
-axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)');
-zlabel Intensity, rotate3d on, zlim([0,1]), xlim([0,zend]), ylim([xo,-xo]),...
-    title('Intensity Difference');
-
-% disp(norm(I-I_analytic))
-
-divergence_angle = theta_angle(I,'no plot');
+end
