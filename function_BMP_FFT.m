@@ -35,6 +35,9 @@ function Output = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, w
     fz=exp(-0.5*(x/wo).^2);        % initial field distribution
     Output = zeros(Nx,Nz);
     Output(:,1) = abs(fz).^2;
+    
+    OutputE = zeros(Nx,Nz);
+    OutputE(:,1) = fz;
 
     %%%%%%%%%%%%%%%%%%%%%%%%
     %************PROPAGATION *****************%
@@ -53,9 +56,11 @@ function Output = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, w
         fz=fftshift(fft(fftshift(Fz_D)));
 
         Output(:,itr)=abs(fz).^2;
+        OutputE(:,itr)=fz;
 
     end
-
+    
+%     Output = real(OutputE);
     if bla == true  
         [Z, X] = meshgrid(z,x);
         mesh(Z,X,(Output));
@@ -68,6 +73,7 @@ function Output = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, w
         zlabel Intensity;
         colormap jet;
         rotate3d on
+        colorbar;
     end
     
 % % %     [Z, X] = meshgrid(z,x);

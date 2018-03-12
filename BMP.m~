@@ -207,14 +207,10 @@ const_to_simplify = (pinv(E-x_mesh*L/(4*1j*ko))*(E+x_mesh*L/(4*1j*ko)));
 for i=1:Nz-1
 
 f(:,i+1)= const_to_simplify*f(:,i);
-% f(:,i+1) = f(:,i+1)*cos(ko*z) 
+f(:,i+1) = f(:,i+1)*cos(ko*z) 
 
 f(1,i+1) = 0;
 f(end,i+1) = 0;
 
 end
-
-extra = repmat(exp(-1j*ko*z),800,1);
-f = f.*extra;
-
 end
