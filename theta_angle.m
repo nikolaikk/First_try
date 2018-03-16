@@ -2,7 +2,7 @@ function [divergence_angle,xx,yy] = theta_angle(intensity,z_mesh,x_mesh, wavelen
     
     intensi_im = zeros(size(intensity));
 
-    for i=1:length(intensity)
+    for i=1:length(intensity(1,:))
         max_ = max(intensity(:,i));
         threshold = max_/exp(2);
         intensi_im(:,i) = imbinarize(intensity(:,i),threshold);
@@ -53,7 +53,7 @@ function [divergence_angle,xx,yy] = theta_angle(intensity,z_mesh,x_mesh, wavelen
             ' ° = ',num2str(divergence_angle_mrad), ' mrad '])
         text (min(x)+max(x)*0.1,max(y)-max(y)*0.2,['Curvature(R) at z = ',num2str(max(x)),'\mum = ',num2str(R),' \mum '])
         text (min(x)+max(x)*0.1,max(y)-max(y)*0.3,['Rayleigh range (Zr) = ',num2str(zr),' \mum '])
-        text (min(x)+max(x)*0.1,max(y)-max(y)*0.4,['Waist (wo) = ',num2str(wo),' \mum '])
+        text (min(x)+max(x)*0.1,max(y)-max(y)*0.4,['Waist (w_{o}) = ',num2str(wo),' \mum '])
 
     end
    

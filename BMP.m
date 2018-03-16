@@ -4,17 +4,16 @@ clear
 %%              Initialization
 
 zo = 0;                     % micrometer
-zend = 400;                % micrometer
+zend = 1000;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
 xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 10;              % micrometer
+Lambda = 50;              % micrometer
 wo = 30;                    % micrometer
 no = 1;
 
-[Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
 
 %%              Start calculation
@@ -58,7 +57,7 @@ if part_of_program  == 0
 
         I = conj(f).*f;
 %         I_analytic = function_analytic_BMP(Lambda,wo,x,z);
-        I_analytic = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no,'real');
+        I_analytic = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no,'nopl');
 
         Number_Nz(ii) = length(z);
         Number_Nz_Nx(ii) = length(z)*length(x);
@@ -78,6 +77,7 @@ if part_of_program  == 0
         disp(strcat(num2str(ii),' /  ', num2str(round((from-to)/step)+1)));
         ii=ii+1;
         
+        % Record
         if record_status == 1
 %             imshow(imresize(I,[800,1600]))
             contour((imresize(I,[800,1600])),25), set(gcf,'Position',[0,0,800,1600]);
@@ -85,6 +85,7 @@ if part_of_program  == 0
         end
     end
     
+    % Record
     if record_status == 1
         vid.close()
     end
@@ -120,7 +121,10 @@ if part_of_program  == 0
 %%              Plot
 
 else
-    
+
+    [Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+
+
 [Z, X] = meshgrid(z,x);
 I = conj(Ez).*Ez;
 % I= real(f);
@@ -131,7 +135,7 @@ set(fig1,'Position',[0,0,1600,1200])
 
 subplot(2,2,1)
 % mesh(Z,X,(I));
-mesh(Z,X,(real(Ez)));
+mesh(Z,X,(abs(real(Ez))));
 view([0,90])
 axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel ('Real Part Electric Field'),...
     rotate3d on, title('Re{Ez} Crank–Nicolson BPM'), colormap jet,colorbar;
@@ -181,17 +185,27 @@ Nx = length(x);
 
 ko = 2*pi/Lambda*no;
 n = 1;
-k = 2*pi/Lambda*n;
+k = 2*pi/Lambda*n*ones(1,length(x));
 f = zeros(Nx,Nz);
 f(:,1) = exp(-(x/wo).^2);
 
 f(1,1) = 0;
 f(end,1) = 0;
+
+%%              Absorbtion rigion
+rigion = 1/4;
+k_grad = ((min(x)+max(x)*rigion-x(1:round(length(x)/8)))*rigion/2);
+k_abs = zeros(1,length(x));
+k_abs(1:length(k_grad))= k_grad;
+k_abs(end-length(k_grad)+1:end) = flip(k_grad);
+% figure, plot(x,k_abs)
+n = n + 1j*k_abs;
+k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
 L = zeros(Nx);
 for i=1:Nx
-    L(i,i)=-2+(ko^2-k^2)*x_mesh^2; % in free space^2 - in material^2
+    L(i,i)=-2+(ko^2-k(i)^2)*x_mesh^2; % in free space^2 - in material^2
 end
 for i=2:(Nx)
     L(i,i-1)=1;
@@ -214,7 +228,6 @@ f(end,i+1) = 0;
 
 end
 
-extra = repmat(exp(-1j*ko*z),800,1);
+extra = repmat(exp(-1j*ko*z),size(f,1),1);
 f = f.*extra;
-
 end

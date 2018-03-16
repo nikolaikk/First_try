@@ -1,7 +1,7 @@
 tic
 
 zo = 0;
-zend = 0.3; %m
+zend = 0.08; %m
 Nz = 600; 
 delta_z = (zend-zo)/(Nz-1); % step size
 z=zo:delta_z:zend;
@@ -23,14 +23,14 @@ wo=0.0001; %m
 f=zeros(Nz);
 f(:,1)=exp(-(x/wo).^2);
 
-
-%% ANALYTIC
-zR = pi*wo^2/Lambda;
-Ia = zeros([length(x),length(z)]);
-
-for i=1:length(z)
-    Ia(:,i) = (wo./width(z(i),zR,wo)).*exp(-x.^2/width(z(i),zR,wo).^2);
-end
+% 
+% %% ANALYTIC
+% zR = pi*wo^2/Lambda;
+% Ia = zeros([length(x),length(z)]);
+% 
+% for i=1:length(z)
+%     Ia(:,i) = (wo./width(z(i),zR,wo)).*exp(-x.^2/width(z(i),zR,wo).^2);
+% end
 %% NUMERIC
 % Define L matrix
 L = zeros(Nz);
@@ -56,8 +56,7 @@ end
 %% PLOT 3D
 [Z, X] = meshgrid(delta_z*(1:Nz),delta_x*(1:Nz));
 I = conj(f).*f;
-Idiff = Ia-I;
-figure,mesh(Z,X,(Idiff));
+figure,mesh(Z,X,I);
 axis vis3d;
 shading interp;
 xlabel ('z (m)');
