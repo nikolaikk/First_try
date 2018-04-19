@@ -56,7 +56,9 @@
 % A source of electric field is defined at the center of the spatial domain 
 % which is a hard source, in that it does not change its value due to 
 % interference from external fields i.e in other words, the source is a 
-% perfect electric conductor. The form of the source can be varied using 
+% perfect electric conductor. The form of the source can be %     E(:,i) = (1/R(z(i),zR)-1j*Lambda/(pi*width(z(i),zR,wo)))...
+%         *exp(-1j*k.*(z(i)+x.^2./(2*R(z(i),zR)*pi*width(z(i),zR,wo)/(pi*width(z(i),zR,wo)-1j*Lambda*R(z(i),zR)))));
+varied using 
 % the variables sine, gaussian and impulse. The source is available in four 
 % standard forms- Unit-time step, Impulse, Gausian and Sinusoidal forms. 
 % For the sinusoidal source, the user is allowed to give a frequency of
@@ -104,11 +106,11 @@ mu=mu0*ones(1,xdim);
 sigma=4e-4*ones(1,xdim);
 sigma_star=4e-4*ones(1,xdim);
 
-%Choice of natue of source
+% Choice of nature of source
 gaussian=0;
-sine=0;
+sine=1;
 % The user can give a frequency of his choice for sinusoidal (if sine=1 above) waves in Hz 
-frequency=1.5e+13;
+frequency=0.75e+13;
 impulse=0;
 %Choose any one as 1 and rest as 0. Default (when all are 0): Unit time step
 
@@ -126,7 +128,7 @@ D=(deltat/delta)./(epsilon+0.5*deltat*sigma);
 % Update loop begins
 for n=1:1:time_tot
     
-    %if source is impulse or unit-time step 
+    % if source is impulse or unit-time step 
     if gaussian==0 && sine==0 && n==1
         Ez(xsource)=1;
     end
@@ -144,12 +146,12 @@ for n=1:1:time_tot
         n2=xdim-1;
     end
     
-    %Vector Update instead of for loop for Hy field incorporating magnetic
-    %conductivity
+    % Vector Update instead of for loop for Hy field incorporating magnetic
+    % conductivity
     Hy(n1:n2)=A(n1:n2).*Hy(n1:n2)+B(n1:n2).*(Ez(n1+1:n2+1)-Ez(n1:n2));
     
-    %Vector Update instead of for loop for Ez field incorporating magnetic
-    %conductivity
+    % Vector Update instead of for loop for Ez field incorporating magnetic
+    % conductivity
     Ez(n1+1:n2+1)=C(n1+1:n2+1).*Ez(n1+1:n2+1)+D(n1+1:n2+1).*(Hy(n1+1:n2+1)-Hy(n1:n2));
     
     % Source conditions
@@ -186,7 +188,7 @@ for n=1:1:time_tot
         
     
     plot((1:1:xdim)*delta,Ez,'color','k');
-    titlestring=['Plot of Ez vs x for 1D FDTD Mur Absorbing Boundary Condition at time = ',num2str(round(n*deltat/10e-15)),' fs'];
+    titlestring=['FDTD Mur Absorbing Boundary Condition at time = ',num2str(round(n*deltat/10e-15)),' fs'];
     title(titlestring,'color','k');
     xlabel('x in m');
     ylabel('Ez in V/m');

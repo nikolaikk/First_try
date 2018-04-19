@@ -4,7 +4,7 @@ clear
 %%              Initialization
 
 zo = 0;                     % micrometer
-zend = 1000;                % micrometer
+zend = 250;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
 xo = -400;                  % micrometer
@@ -18,16 +18,16 @@ no = 1;
 
 %%              Start calculation
 
-[Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+[Ez,x,z,Nz,Nx] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
 
 [Z, X] = meshgrid(z,x);
 I = conj(Ez).*Ez;
-contourf(X,Z,I)
+contourf(X,Z,(I))
 view([90,90])
 
 %%              Main BPM funciton 
-function [f,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no)
+function [f,x,z,Nz,Nx] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no)
 
 x = xo:x_mesh:xend-x_mesh;
 z = zo:z_mesh:zend-z_mesh;
@@ -36,7 +36,7 @@ Nx = length(x);
 
 ko = 2*pi/Lambda*no;
 n = 1;
-k = 2*pi/Lambda*n*ones(1,length(x));
+k = 2*pi/Lambda*n*ones(1,Nx);
 f = zeros(Nx,Nz);
 f(:,1) = exp(-(x/wo).^2);
 
@@ -54,18 +54,18 @@ f(end,1) = 0;
 % k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
-% L = zeros(Nx);
-% for i=1:Nx
-%     L(i,i)=-2+(ko^2-k(i)^2)*x_mesh^2; % in free space^2 - in material^2
-% end
-% for i=2:(Nx)
-%     L(i,i-1)=1;
-%     L(i-1,i)=1;
-% end
-% L = (1/x_mesh^2)*L;
-% 
-% %%              Psi evolution
-% 
+L = zeros(Nx);
+for i=1:Nx
+    L(i,i)=-2+(ko^2-k(i)^2)*x_mesh^2; % in free space^2 - in material^2
+end
+for i=2:(Nx)
+    L(i,i-1)=1;
+    L(i-1,i)=1;
+end
+L = (1/x_mesh^2)*L;
+
+%%              Psi evolution
+
 % E = eye(Nx);
 % const_to_simplify = (pinv(E-x_mesh*L/(4*1j*ko))*(E+x_mesh*L/(4*1j*ko)));
 % % const_to_simplify(find(const_to_simplify<1e-14))=0
@@ -76,15 +76,27 @@ f(end,1) = 0;
 % 
 % f(1,i+1) = 0;
 % f(end,i+1) = 0;
-% 
-% end
-for n=1:Nz
-    for j = 2:Nx-1
-        f(n+1,j)=f(n,j)+1j/(2*k)*z_mesh*(f(n,j+1)+f(n,j-1)-2*f(n,j))/x_mesh^2+1j/(2*k)*z_mesh*f(n,j)*(kk^2)
-    end
+alpha = 0.5;
+aj = -alpha/x_mesh^2;
+bj = 2*alpha/x_mesh^2-alpha*(k(1)^2-ko^2)+2j*ko/z_mesh;
+cj = -alpha/x_mesh^2;
+
+rj = zeros(1,Nx)
+for j=2:Nx-1
+   rj(j) = (1-alpha)/x_mesh^2*(f(j-1,1)+f(j+1,1))+((1-alpha)*(k(j)^2+ko^2)-2*(1-alpha)/x_mesh^2+2j*ko/z_mesh)*f(j,1);
+end
+
+beta = bj;
+
+for j=2:Nx
+   gama = cj/beta;
+   beta = bj-aj*gama;
+   f(:,j)
 end
 
 
+
+
 extra = repmat(exp(-1j*ko*z),size(f,1),1);
-f = f.*extra;
+% f = f.*extra;
 end

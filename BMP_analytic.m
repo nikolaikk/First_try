@@ -1,33 +1,42 @@
+zo = 0;                     % micrometer
+zend = 400;                % micrometer
+z_mesh = 1;                 % micrometer
 ratio = 1;
-Lambda = 600e-9;   %meter
-wo=0.0001;
-k = 2* pi/Lambda;
-Nz = 20
-x = linspace(-0.001,0.001,Nz) * ratio;
-z = linspace(0,0.3,length(x)) * ratio;
+xo = -200;                  % micrometer
+xend = -xo;                 % micrometer
+x_mesh = z_mesh/ratio;      % micrometer
+Lambda = 10;              % micrometer
+wo = 30;                    % micrometer
+no = 1;
 
+x = xo:x_mesh:xend-x_mesh;
+z = zo:z_mesh:zend-z_mesh;
+Nz = length(z);
+Nx = length(x);
+ko = 2*pi/Lambda*no;
+n = 1;
+k = 2*pi/Lambda*n*ones(1,length(x));
 zR = pi*wo^2/Lambda;
-
-
-
-% x = width(3,zR,wo)
-% R(1:5,zR)
-
 I = zeros([length(x),length(z)]);
+E = I;
 
 for i=1:length(z)
+    qo_z = R(z(i),zR) * pi*width(z(i),zR,wo)/(pi*width(z(i),zR,wo)-1j*Lambda*R(z(i),zR));
+    E(:,i) = (1/qo_z) * exp(-1j*k.*(z(i)+x.^2./qo_z));
+%     E(:,i) = E* wo./width(z(i),zR,wo).*exp(-(x.^2)./width(z(i),zR,wo).^2).*exp(1j*(k*z(i)+k*(x.^2)./(2*R(z(i),zR))-psi(z(i),zR)));
     I(:,i) = (wo./width(z(i),zR,wo)).*exp(-x.^2/width(z(i),zR,wo).^2);
 end
+
 [Z, X] = meshgrid(z,x);
-figure,mesh(Z,X,(I));
+% I = abs(E).^2;
+I = conj(E).*E;
+figure,mesh(Z,X,real(I));
 axis vis3d;
 shading interp;
 xlabel ('z (m)');
 ylabel ('x (m)');
 zlabel I;
 rotate3d on
-toc
-
 
 
 function t = width(z,zR,wo)

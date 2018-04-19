@@ -4,7 +4,8 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
     z = zo:z_mesh:zend-z_mesh;
     
     E = 1;
-    k = 2* pi/Lambda/no;
+    Io = 1;
+    k = 2* pi/Lambda*no;
     zR = pi*wo^2/Lambda;
     Nx = length(x);
     Nz = length(z);
@@ -12,14 +13,17 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
     Ez = zeros([Nx,Nz]);
     
     for i=1:Nz
-        Ez(:,i) = E* wo./width(z(i),zR,wo).*exp(-(x.^2)./width(z(i),zR,wo).^2).*exp(1j*(k*z(i)+k*(x.^2)./(2*R(z(i),zR))-psi(z(i))));
-%         Ez(:,i) = E* wo./width(z(i),zR,wo).*exp(-(x.^2)./width(z(i),zR,wo).^2).*exp(1j*(k*z(i)+k*(x.^2)./(2*R(z(i),zR))));
-        I(:,i) =((wo./width(z(i),zR,wo)).^2).*exp(-2*(x.^2)/(width(z(i),zR,wo).^2));
-%         I(:,i) = exp(-2*(x.^2)/(width(z(i),zR,wo).^2));       % peak intensity is the same as beam propagates
+        
+        % Intensity Normalized
+%         Ez(:,i) = E* (2/pi/width(z(i),zR,wo).^2).^0.25.*exp(-(x.^2)./width(z(i),zR,wo).^2).*exp(-1j*(k*z(i)+k*(x.^2)./(2*R(z(i),zR))-psi(z(i),zR)/2));
+        
+        % Amplitude Normalized
+        Ez(:,i) = E * (wo./width(z(i),zR,wo)).^0.5.*exp(-(x.^2)./width(z(i),zR,wo).^2).*exp(1j*(k*z(i)+k*(x.^2)./(2*R(z(i),zR))-psi(z(i),zR)/2));
+   
     end
     
-%     I = real(conj(Ez).* Ez);
-%     I = I1-I;
+    I = abs(Ez).^2;
+    
         if type == 'imag'
             [Z, X] = meshgrid(z,x);
             mesh(Z,X,abs(real(Ez)));
@@ -49,14 +53,16 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
 
         else
         end
-      
+%       plot(z,arr)
+        
+        
     function w = width(z,zR,wo)
         w = wo*sqrt(1+(z/zR).^2);
     end
     function r = R(z,zR)
-        r = z*(1+(zR/z)^2);
+        r = z+(zR^2/z);
     end
-    function gouy = psi(z)
+    function gouy = psi(z,zR)
         gouy = atan(z/zR);
     end
 

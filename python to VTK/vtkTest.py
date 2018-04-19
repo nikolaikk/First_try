@@ -15,6 +15,7 @@ celldata = vtk.CellData(vtk.Scalars([0,1,2,3,4,5],name='cell_scalars'),
 
 vtkdata = vtk.VtkData(structure,pointdata,celldata)
 vtkdata.tofile('example1ascii','ascii')
-vtkdata.tofile('example1binary','binary')
 
+
+#vtkdata.tofile('example1binary','binary')
 #vtk2 = VtkData('example1')t

@@ -10,7 +10,7 @@ ratio = 1;
 xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 50;              % micrometer
+Lambda = 10;              % micrometer
 wo = 30;                    % micrometer
 no = 1;
 
@@ -18,7 +18,7 @@ no = 1;
 
 %%              Start calculation
 part_of_program = 0;
-part_of_program = 1;
+% part_of_program = 1;
 
 record_status = 0;
 % record_status = 1;
@@ -29,7 +29,7 @@ movie_name = 'animate5.avi';
  
 if part_of_program  == 0
     
-    step = 0.01;
+    step = 0.005;
     err_l2 = [];
     err_max = [];
     err_l2_point = [];
@@ -38,9 +38,11 @@ if part_of_program  == 0
 
     tic
     from = 1;
-    to = 0.7;
+    to = 0.5;
     range_z = from:-step:to;
-    range_x = linspace(x_mesh,x_mesh-0.25,length(range_z));
+    range_z = [1,0.5,0.25];
+%     range_x = linspace(x_mesh,x_mesh-0.25,length(range_z));
+    range_x = range_z;
     
     % Video
     if record_status == 1
@@ -53,28 +55,30 @@ if part_of_program  == 0
         disp(i_z_mesh)
 
         x_mesh = range_x(ii);      % micrometer
-        [f,x,z] = solve_BPM(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+        
+        [Ez,x,z] = solve_BPM(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
-        I = conj(f).*f;
+        I = conj(Ez).*Ez;
 %         I_analytic = function_analytic_BMP(Lambda,wo,x,z);
-        I_analytic = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no,'nopl');
+        [I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no,'nopl');
 
         Number_Nz(ii) = length(z);
         Number_Nz_Nx(ii) = length(z)*length(x);
         
 %         err1(ii) = 1/Number_Nz(ii)*norm(I-I_analytic,2);
-%         err2(ii) = 1/Number_Nz(ii)*norm(I-I_analytic,inf);
+%         err2(ii) = 1/Number_Nz(ii)*l2norm(I-I_analytic,inf);
         
-        I_diff = (I-I_analytic);
-        err_l2(ii) = 1/Number_Nz_Nx(ii)*sqrt(sum(sum(I_diff).^2));
-        err_max(ii) = max(max(I_diff));
+%         I_diff = (I-I_analytic);
+% %         err_l2(ii) = 1/Number_Nz(ii)*sqrt(sum(sum(abs(I_diff))));
+%         err_l2(ii) = 1/Number_Nz(ii)*sqrt(sum(sum(abs(I_diff))));
+%         err_max(ii) = max(max(I_diff));
         
-        px = 0.2;
-        py = 0.5;
-        err_l2_point(ii) = abs(I_diff(round(py*size(I,1)),round(px*size(I,2)))); % change of error at point (px,py)
-
+        Ez_diff = abs(Ez-Ez_analytic);
+        err_l2(ii) = 1/Number_Nz_Nx(ii)*sqrt(sum(sum(Ez_diff.^2)));
+        err_max(ii) = max(max(Ez_diff));
+         
         clc;
-        disp(strcat(num2str(ii),' /  ', num2str(round((from-to)/step)+1)));
+        disp(strcat(num2str(ii),' /  ', num2str(length(range_z))));
         ii=ii+1;
         
         % Record
@@ -93,22 +97,24 @@ if part_of_program  == 0
 
     fig = figure,set(fig,'Position',[0,0,900,1200]);
     
-    subplot(2,1,1),plot(Number_Nz,err_l2),title('L2 norm error')
+    subplot(2,1,1),plot(Number_Nz_Nx,err_l2,'o-'),title('L2 norm error')
     xlabel('Number of grid points'),ylabel('Error')
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     hold on% f(1,i+1) = 0;
 % f(end,i+1) = 0;
 
+     
     
-    i_max=(find(err_l2==max(err_l2)));
-    Xx = [Number_Nz(i_max),Number_Nz(i_max)*2,Number_Nz(i_max)*4,Number_Nz(i_max)*8,Number_Nz(i_max)*16];
-    Yy = [err_l2(i_max),err_l2(i_max)/2,err_l2(i_max)/4,err_l2(i_max)/8,err_l2(i_max)/16];
-    
-    
-    
-    subplot(2,1,2), plot(Number_Nz,err_max),title('Lmax norm error')
+    subplot(2,1,2), plot(Number_Nz,err_max,'o-'),title('Lmax norm error')
     xlabel('Number of grid points'),ylabel('Error')
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+    
+    % Show error and zrange
+    range_z
+    err_l2
+    err_l2/(err_l2(1))
+    figure,set(gcf,'Position',[0,0,900,1200]), subplot(2,1,1), contourf(real(Ez))
+    subplot(2,1,2), contourf(real(Ez_analytic))
 
     % Plot error at particular point
     
@@ -122,7 +128,7 @@ if part_of_program  == 0
 
 else
 
-    [Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+[Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
 
 [Z, X] = meshgrid(z,x);
@@ -147,10 +153,10 @@ axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel Int
     rotate3d on, title('Intensity Crank–Nicolson BPM'), colormap jet,colorbar;
 
 subplot(2,2,3)
-I_analytic = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'real');
+[I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'real');
 
 subplot(2,2,4)
-Ez_analytic = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'I');
+function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'I');
 
 
 % subplot(3,1,3)
@@ -193,14 +199,14 @@ f(1,1) = 0;
 f(end,1) = 0;
 
 %%              Absorbtion rigion
-rigion = 1/4;
-k_grad = ((min(x)+max(x)*rigion-x(1:round(length(x)/8)))*rigion/2);
+rigion = 1/2;
+k_grad = ((min(x)+max(x)*rigion-x(1:round(length(x)*rigion/2)))*rigion/2).^2;
 k_abs = zeros(1,length(x));
 k_abs(1:length(k_grad))= k_grad;
 k_abs(end-length(k_grad)+1:end) = flip(k_grad);
 % figure, plot(x,k_abs)
-n = n + 1j*k_abs;
-k = 2*pi/Lambda*n;
+n = n + 0.00005j*k_abs;
+% k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
 L = zeros(Nx);
@@ -227,7 +233,7 @@ f(1,i+1) = 0;
 f(end,i+1) = 0;
 
 end
-
+    
 extra = repmat(exp(-1j*ko*z),size(f,1),1);
 f = f.*extra;
 end
