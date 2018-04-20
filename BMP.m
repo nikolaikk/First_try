@@ -4,7 +4,7 @@ clear
 %%              Initialization
 
 zo = 0;                     % micrometer
-zend = 1000;                % micrometer
+zend = 100;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
 xo = -400;                  % micrometer
@@ -73,8 +73,8 @@ if part_of_program  == 0
 %         err_l2(ii) = 1/Number_Nz(ii)*sqrt(sum(sum(abs(I_diff))));
 %         err_max(ii) = max(max(I_diff));
         
-        Ez_diff = abs(Ez-Ez_analytic);
-        err_l2(ii) = 1/Number_Nz_Nx(ii)*sqrt(sum(sum(Ez_diff.^2)));
+        Ez_diff = abs(abs(real(Ez))-abs(real(Ez_analytic)));
+        err_l2(ii) = 1/Number_Nz_Nx(ii) * sqrt(sum(sum(Ez_diff.^2)));
         err_max(ii) = max(max(Ez_diff));
          
         clc;
@@ -109,10 +109,11 @@ if part_of_program  == 0
     xlabel('Number of grid points'),ylabel('Error')
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     
-    % Show error and zrange
-    range_z
-    err_l2
-    err_l2/(err_l2(1))
+    % Show error and zrange    
+    fprintf(strcat('delta_z values  :   ',num2str(range_z),'\n'))
+    fprintf(strcat('L2 normed error values  :   ',num2str(err_l2),'\n'))
+    fprintf(strcat('L2 normed error values devided by max  :   ',num2str(err_l2/err_l2(1)),'   error decrease x',num2str(round(err_l2(1)/err_l2(2))),'\n'))
+    fprintf(strcat('Lmax normed error values devide by max  :   ',num2str(err_max/err_max(1)),'   error decrease x',num2str(round(err_max(1)/err_max(2))),'\n'))    
     figure,set(gcf,'Position',[0,0,900,1200]), subplot(2,1,1), contourf(real(Ez))
     subplot(2,1,2), contourf(real(Ez_analytic))
 

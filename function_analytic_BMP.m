@@ -24,7 +24,7 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
     
     I = abs(Ez).^2;
     
-        if type == 'imag'
+        if type == 'real'
             [Z, X] = meshgrid(z,x);
             mesh(Z,X,abs(real(Ez)));
             zlabel ('Imaginary Part Electric Field');
@@ -33,7 +33,7 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
             view([0,90]), axis tight, shading interp, xlabel ('z (\mum)');
             ylabel ('x (\mum)'), colormap jet,rotate3d on, colorbar;
 
-        elseif type == 'real'
+        elseif type == 'imag'
             [Z, X] = meshgrid(z,x);
             mesh(Z,X,abs(imag(Ez)));
             zlabel ('Real Part Electric Field');
