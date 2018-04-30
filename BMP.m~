@@ -21,9 +21,9 @@ part_of_program = 0;
 % part_of_program = 1;
 
 record_status = 0;
-record_status = 1;
+% record_status = 1;
 
-movie_name = 'animate4.avi';
+movie_name = 'animate5.avi';
 
 %%              Convergence
  
@@ -69,8 +69,8 @@ if part_of_program  == 0
         err_max(ii) = max(max(Ez_diff));
         
         % Error at particular point
-        xp = 0.7;     % from 0 to 1
-        zp = 0.5;    % from 0 to 1
+        xp = 0.5;     % from 0 to 1
+        zp = 0.0;    % from 0 to 1
         xp_coord = round(length(x)*xp)+1;
         zp_coord = round(length(z)*zp)+1;
         err_point(ii) = abs(real(Ez_analytic(xp_coord,zp_coord)-Ez(xp_coord,zp_coord)));
@@ -83,10 +83,12 @@ if part_of_program  == 0
         % Record
         if record_status == 1
 %             imshow(imresize(I,[800,1600]))
-            Ez_diff(xp_coord,zp_coord)=0.0001;
-            contour((imresize(Ez_diff,[800,1600])),25),hold on,scatter(zp*1600,xp*800),hold off;
+            contour((imresize(Ez_diff,[800,1600])),25),hold on,scatter(x(xp_coord),z(zp_coord)),hold off;
             colorbar, set(gcf,'Position',[0,0,800,1600]);
             vid.writeVideo(getframe(gca));
+        else
+            contour((imresize(Ez_diff,[800,1600])),25),hold on,scatter(x(xp_coord),z(zp_coord)),hold off;
+            colorbar, set(gcf,'Position',[0,0,800,1600]);
         end
     end
     

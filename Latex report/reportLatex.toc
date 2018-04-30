@@ -1,5 +1,5 @@
 \contentsline {section}{\numberline {1}Introduction}{2}
 \contentsline {subsection}{\numberline {1.1}Analytical solution}{2}
 \contentsline {subsection}{\numberline {1.2}Numerical solution}{3}
-\contentsline {section}{\numberline {2}Algorithm}{3}
-\contentsline {section}{\numberline {3}Results}{3}
+\contentsline {section}{\numberline {2}Results}{3}
+\contentsline {section}{\numberline {3}Conlusion}{3}
