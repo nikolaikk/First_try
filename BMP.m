@@ -3,6 +3,9 @@ clear
     
 %%              Initialization
 
+epsilon = 8.854187817e-12;
+c = 299792458;
+
 zo = 0;                     % micrometer
 zend = 600;                % micrometer
 z_mesh = 1;                 % micrometer
@@ -10,7 +13,7 @@ ratio = 1;
 xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 10;              % micrometer
+Lambda = 20;              % micrometer
 wo = 30;                    % micrometer
 no = 1;
 
@@ -57,7 +60,7 @@ if part_of_program  == 0
         
         [Ez,x,z] = solve_BPM(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
-        I = conj(Ez).*Ez;
+        I = epsilon*no*c*0.5*abs(Ez).^2;
 %         I_analytic = function_analytic_BMP(Lambda,wo,x,z);
         [I_analytic, Ez_analytic] = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no,'nopl');
 
@@ -140,33 +143,28 @@ if part_of_program  == 0
 else
 
 [Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+[I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
 
 [Z, X] = meshgrid(z,x);
-I = conj(Ez).*Ez;
+I = epsilon*no*c*0.5*abs(Ez).^2;
 % I= real(f);
 
 % Plot 
 fig1 = figure;
-set(fig1,'Position',[0,0,1600,1200])
+set(fig1,'Position',[0,0,2000,1200])
 
 subplot(2,2,1)
-mesh(Z,X,(abs(real(Ez))));
-view([0,90])
-axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel ('Real Part Electric Field'),...
-    rotate3d on, title('Re{Ez} Crank–Nicolson BPM'), colormap jet,colorbar;
+plot_mesh_function(Z,X,(abs(real(Ez))),'z (\mum)','x (\mum)','Real Part Electric Field','Re{Ez} Crank–Nicolson BPM')
 
 subplot(2,2,2)
-mesh(Z,X,(I));
-view([0,90])
-axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)'), zlabel Intensity,...
-    rotate3d on, title('Intensity Crank–Nicolson BPM'), colormap jet,colorbar;
+plot_mesh_function(Z,X,I,'z (\mum)','x (\mum)','Intensity','Intensity Crank–Nicolson BPM')
 
 subplot(2,2,3)
-[I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'real');
+plot_mesh_function(Z,X,abs(real(Ez_analytic)),'z (\mum)','x (\mum)','Real Part Electric Field','Re{Ez} Analytic Gaussian Beam')
 
 subplot(2,2,4)
-function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,'I');
+plot_mesh_function(Z,X,I_analytic,'z (\mum)','x (\mum)','Intensity','Intensity Analytic Gaussian Beam')
 
 
 % subplot(3,1,3)
@@ -246,4 +244,20 @@ end
     
 extra = repmat(exp(-1j*ko*z),size(f,1),1);
 f = f.*extra;
+end
+
+function plot_mesh_function(X,Y,F,x_label,y_label,z_label,plot_title)
+
+contourf(X,Y,F);
+view([0,90]);
+axis tight, shading interp;
+xlabel (x_label,'FontSize', 18);
+ylabel (y_label,'FontSize', 18);
+zlabel (z_label);
+rotate3d on, title(plot_title,'FontSize', 18);
+colormap jet, colorbar;
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
+
+
 end

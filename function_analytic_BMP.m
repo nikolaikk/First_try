@@ -1,8 +1,7 @@
-function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no, type)
+function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no)
     
     x = xo:x_mesh:xend-x_mesh;
     z = zo:z_mesh:zend-z_mesh;
-    
     E = 1;
     Io = 1;
     k = 2* pi/Lambda*no;
@@ -11,6 +10,8 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
     Nz = length(z);
     I = zeros([Nx,Nz]);
     Ez = zeros([Nx,Nz]);
+    epsilon = 8.854187817e-12;
+    c = 299792458;
     
     for i=1:Nz
         
@@ -22,46 +23,16 @@ function [I,Ez] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lamb
    
     end
     
-    I = abs(Ez).^2;
-    
-        if type == 'real'
-            [Z, X] = meshgrid(z,x);
-            mesh(Z,X,abs(real(Ez)));
-            zlabel ('Imaginary Part Electric Field');
-            title('Im{Ez} Analytic Gaussian Beam');
+    I = epsilon*no*c*0.5*abs(Ez).^2;
 
-            view([0,90]), axis tight, shading interp, xlabel ('z (\mum)');
-            ylabel ('x (\mum)'), colormap jet,rotate3d on, colorbar;
-
-        elseif type == 'imag'
-            [Z, X] = meshgrid(z,x);
-            mesh(Z,X,abs(imag(Ez)));
-            zlabel ('Real Part Electric Field');
-            title('Re{Ez} Analytic Gaussian Beam');
-            
-            view([0,90]), axis tight, shading interp, xlabel ('z (\mum)');
-            ylabel ('x (\mum)'), colormap jet,rotate3d on, colorbar;
-
-        elseif type == 'I'
-            [Z, X] = meshgrid(z,x);
-            mesh(Z,X,I);
-            zlabel Intensity;
-            title('Intensity Analytic Gaussian Beam');
-            
-            view([0,90]), axis tight, shading interp, xlabel ('z (\mum)');
-            ylabel ('x (\mum)'), colormap jet,rotate3d on, colorbar;
-
-        else
-        end
-%       plot(z,arr)
-        
-        
     function w = width(z,zR,wo)
         w = wo*sqrt(1+(z/zR).^2);
     end
+
     function r = R(z,zR)
         r = z+(zR^2/z);
     end
+
     function gouy = psi(z,zR)
         gouy = atan(z/zR);
     end

@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage{graphicx}
 
 
 \title{Report\\Beam propagation method and absorption boundary condition in 2-D}
@@ -32,17 +33,16 @@
 	\end{center}
 	$u$ is complex function which describes non-plane part of the beam. Substituting our ansatz into Helmholtz equation in cartesian coordinates and doing some simplifications we get.
 
-	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
+	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
 	Using paraxial approximation we see that third term is smaller than other, therefore can be neglected, as result we get following equation.
 	
 	\begin{equation}
-	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
+	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
 	\end{equation}
-	Solving this differential equation we find $u$ hence we find $E$. Solution for one dimensional case, where wave propagates only in x-z plane is,
+	Solving this differential equation we find $u$ hence we find $E$. We assume that $k = k_o$, therefore solution for one dimensional case, where wave propagates in z-direction and oscillates in xz plane is,
 	
-	\[E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(kz+k\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)\]
-	where
-	$w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the table below.This electric field formula will be later used as reference to numerical solution.
+	\[E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)\]
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the table below.This electric field formula will be later used as reference to numerical solution.
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
 %	\[R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]\]
@@ -62,24 +62,55 @@
 	\end{table}
 	
 	\subsection{Numerical solution}
-	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is descritiztion of formula (1), and can be rewritten in following way.
+	Equation (1) for one dimensional case can be rewritten in the following form.
+	\begin{equation}
+	2ik_o\frac{\partial u}{\partial z}=\frac{\partial^2 u}{\partial x^2}+(k^2-k_o^2)u
+	\end{equation}
+	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is descritization of formula (2), formula should be descritized for z-component and x-component. For beggining let's do descitization only for z component, our equation will get following form.
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\]
+	Index $l$ denotes the order of grid point in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\]
+	Neither this scheme shows good stability, however the combination of these two solves instability problem. These method is called {\bf Crank-Nicolson} method.
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=(1-\alpha)\frac{\partial^2 u^l}{\partial x^2}+(1-\alpha)(k^2-k_o^2)u^l+\alpha \frac{\partial^2 u^{l+1}}{\partial x^2}+\alpha(k^2-k_o^2)u^{l+1}\]
+	$\alpha$ here shows interest of which difference we want higher contribution, usually is set to 1/2. Then Crank-Nicolson scheme has next form.
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\bigg)+\frac{1}{2}\bigg(\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\bigg)\]
+	Now discitization of x-component can be performed.
+
+	\begin{equation*}
+	\begin{split}
+	2ik_o\frac{u_j^{l+1}-u_j^l}{\Delta z}=\frac{1}{2}\bigg(\frac{u_{j-1}^l-2u_j^l+u_{j+1}^l}{\Delta x^2}+&(k^2-k_o^2)u_j^l\bigg)+\\
+	& \frac{1}{2}\bigg(\frac{u_{j-1}^{l+1}-2u_j^{l+1}+u_{j+1}^{l+1}}{\Delta x^2}+(k^2-k_o^2)u_j^{l+1}\bigg)
+	\end{split}
+	\end{equation*}
+	$j$ index denotes the order of grid point in x-direction. Such discritization can be rewritten and later solved using triagonal matrix algorithm or so called {\bf Thomas algorithm}. 
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l+1}+L_hu^l\bigg)\]
-	where $L_h$ is spacial discretization operator for one dimensional case is equal to
-	\[L= \frac{\partial^2 }{\partial x^2}+(k^2-k_o^2)\]
-	$L$ numerically will be defined by Thomas algorithm, also known as triagonal matrix algorithm. 
+	$L_h$ is spacial discretization operator for one dimensional case and is numerically defined in Thomas algorithm as 
+
+	\setlength\arraycolsep{-2.5pt}
 	\[ L = \begin{bmatrix}
-    -2+(k^2-k_o^2)\Delta x^2& 1& 0& \dots  & 0 \\
-    1 &     -2+(k^2-k_o^2)\Delta x^2 & 1 & \dots  & 0 \\
-    0 &     1& -2+(k^2-k_o^2)\Delta x^2 & \dots  & 0 \\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\
-    0& 0& 0& \dots  &     -2+(k^2-k_o^2)\Delta x^2
-\end{bmatrix}\]
-From here doing simple mathematical rearrangement we can write previous equation in the following form.
-	\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
-Here $I$ is identity matrix, which has the same size as triagonal matrix $L$.
+    -2+(k^2-k_o^2)\Delta x^2& 1& 0& &\dots& & 0 \\
+    1 & -2+(k^2-k_o^2)\Delta x^2 & 1& &\dots& & 0 \\
+    0 &     1& -2+(k^2-k_o^2)\Delta x^2 & &\dots& & 0 \\
+    \vdots & \vdots & \vdots & &\dots& & \vdots \\
+    0& 0& 0& &\dots& &     -2+(k^2-k_o^2)\Delta x^2
+	\end{bmatrix}\]
+	
+	
+	From here doing simple mathematical rearrangement we can write previous equation in the following form.
+		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
+	Here $I$ is identity matrix, which has the same size as triagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gassuian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$.
+
+	\newpage
 	\section{Results}
+	Results see Figure \ref{fig:Results}
+	\begin{figure}[h!]
+		\hspace{-30mm}
+		\includegraphics[width=1.5\textwidth]{N2.jpg}
+		\caption{\label{fig:Results}Here you can see the similarity between two methods.}
+%		\centering
+	\end{figure}
 	\section{Conlusion}
-\end{document}
+	\end{document}
 
 
 
