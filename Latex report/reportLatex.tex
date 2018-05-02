@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
 
 
 \title{Report\\Beam propagation method and absorption boundary condition in 2-D}
@@ -21,7 +22,7 @@
 	Beam propagation in media is of high interest for scientists and also for industrial purposes. 
 	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution of beam propagation. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero incident angle, so to fit the scope of mini-project, later on can be extended for more sophisticated cases.
 	\subsection{Analytical solution}
-	To better analytically understand propagation of beam in space we should solve Helmholz Eqaution.
+	To better analytically understand propagation of beam in space we should solve Helmholz Equation.
 	\begin{center}
 		$(\nabla^2+k^2)E = 0$		
 	\end{center}
@@ -29,15 +30,15 @@
 	\begin{center}
 		$E(x,y,z)=u(x,y,z)e^{-ik_oz}$
 	\end{center}
-	$u$ is complex fuction which describes non-plane part of the beam. Substituting our ansatz into Helmholtz equation in cartesian coordinates and doing some simplifications we get.
+	$u$ is complex function which describes non-plane part of the beam. Substituting our ansatz into Helmholtz equation in cartesian coordinates and doing some simplifications we get.
 
 	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
-	Using paraxial aproximation we see that third term is smaller than other, thefore can be neglected, as result we get following equation.
+	Using paraxial approximation we see that third term is smaller than other, therefore can be neglected, as result we get following equation.
 	
 	\begin{equation}
 	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
 	\end{equation}
-	Solving this differential equation we find $u$ hence we find $E$. Solution for one dimentional case, where wave propagates only in x-z plane is,
+	Solving this differential equation we find $u$ hence we find $E$. Solution for one dimensional case, where wave propagates only in x-z plane is,
 	
 	\[E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(kz+k\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)\]
 	where
@@ -65,7 +66,21 @@
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l+1}+L_hu^l\bigg)\]
 	where $L_h$ is spacial discretization operator for one dimensional case is equal to
 	\[L= \frac{\partial^2 }{\partial x^2}+(k^2-k_o^2)\]
-	L numerically will be defined by Thomas algorithm, also known as triagonal matrix algorithm.
+	$L$ numerically will be defined by Thomas algorithm, also known as triagonal matrix algorithm. 
+	\[ L = \begin{bmatrix}
+    -2+(k^2-k_o^2)\Delta x^2& 1& 0& \dots  & 0 \\
+    1 &     -2+(k^2-k_o^2)\Delta x^2 & 1 & \dots  & 0 \\
+    0 &     1& -2+(k^2-k_o^2)\Delta x^2 & \dots  & 0 \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0& 0& 0& \dots  &     -2+(k^2-k_o^2)\Delta x^2
+\end{bmatrix}\]
+From here doing simple mathematical rearrangement we can write previous equation in the following form.
+	\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
+Here $I$ is identity matrix, which has the same size as triagonal matrix $L$.
 	\section{Results}
 	\section{Conlusion}
 \end{document}
+
+
+
+

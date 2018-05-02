@@ -18,10 +18,10 @@ no = 1;
 
 %%              Start calculation
 part_of_program = 0;
-% part_of_program = 1;
+part_of_program = 1;
 
 record_status = 0;
-record_status = 1;
+% record_status = 1;
 
 movie_name = 'animate4.avi';
 
