@@ -10,18 +10,18 @@ zo = 0;                     % micrometer
 zend = 800;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
-xo = -400;                  % micrometer
+xo = -100;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 20;              % micrometer
-wo = 50;                    % micrometer
+Lambda = 10;              % micrometer
+wo = 15;                    % micrometer
 no = 1;
 
 
 
 %%              Start calculation
 part_of_program = 0;
-% part_of_program = 1;
+part_of_program = 1;
 
 record_status = 0;
 % record_status = 1;
@@ -214,7 +214,7 @@ k_abs(1:length(k_grad))= k_grad;
 k_abs(end-length(k_grad)+1:end) = flip(k_grad);
 % figure, plot(x,k_abs)
 n = n + 0.0013j*k_abs;
-% k = 2*pi/Lambda*n;
+k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
 L = zeros(Nx);

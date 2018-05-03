@@ -4,8 +4,8 @@
 \usepackage{graphicx}
 
 
-\title{Report\\Beam propagation method and absorption boundary condition in 2-D}
-\date{21-04-2-2018}
+\title{Report\\Numerical Simulation of Beam Propagation including Error Convergence Analysis}
+\date{15-05-2018}
 
 \author{Prepered by: Nicolae Cadin \\Supervised by: Ramon Springer}
 
@@ -27,7 +27,7 @@
 	\begin{center}
 		$(\nabla^2+k^2)E = 0$		
 	\end{center}
-	This equation generally holds for elegtromagnetic wave, hence for electric and magnetic field components, for simplicity we chose electric field $E$. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of medium (here we assume it to be eqaul to 1). As assumption we consider that our wave propagates in $z$ direction and electric field can be represented in next form.
+	This equation generally holds for electromagnetic wave, hence for electric and magnetic field components, for simplicity we chose electric field $E$. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of medium (here we assume it to be equal to 1). As assumption we consider that our wave propagates in $z$ direction and electric field can be represented in next form.
 	\begin{center}
 		$E(x,y,z)=u(x,y,z)e^{-ik_oz}$
 	\end{center}
@@ -74,7 +74,7 @@
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=(1-\alpha)\frac{\partial^2 u^l}{\partial x^2}+(1-\alpha)(k^2-k_o^2)u^l+\alpha \frac{\partial^2 u^{l+1}}{\partial x^2}+\alpha(k^2-k_o^2)u^{l+1}\]
 	$\alpha$ here shows interest of which difference we want higher contribution, usually is set to 1/2. Then Crank-Nicolson scheme has next form.
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\bigg)+\frac{1}{2}\bigg(\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\bigg)\]
-	Now discitization of x-component can be performed.
+	Now discretization of x-component can be performed.
 
 	\begin{equation*}
 	\begin{split}
@@ -82,7 +82,7 @@
 	& \frac{1}{2}\bigg(\frac{u_{j-1}^{l+1}-2u_j^{l+1}+u_{j+1}^{l+1}}{\Delta x^2}+(k^2-k_o^2)u_j^{l+1}\bigg)
 	\end{split}
 	\end{equation*}
-	$j$ index denotes the order of grid point in x-direction. Such discritization can be rewritten and later solved using triagonal matrix algorithm or so called {\bf Thomas algorithm}. 
+	$j$ index denotes the order of grid point in x-direction. Such discretization can be rewritten and later solved using triagonal matrix algorithm or so called {\bf Thomas algorithm}. 
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l+1}+L_hu^l\bigg)\]
 	$L_h$ is spacial discretization operator for one dimensional case and is numerically defined in Thomas algorithm as 
 
@@ -98,15 +98,31 @@
 	
 	From here doing simple mathematical rearrangement we can write previous equation in the following form.
 		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
-	Here $I$ is identity matrix, which has the same size as triagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gassuian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$.
+	Here $I$ is identity matrix, which has the same size as triagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$.
+	
+	\subsubsection{Absorbing Boundary Condition}
+	Implementing numerical method, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg];\]
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg];\]
+	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of our computational domain, in our case will be corresponding to range of x, $\delta$ is a part of total width where absorption will be introduced, geometry of introduced absorption can be seen at 
+	It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}
+	\begin{figure}[h!]
+		\hspace{+10mm}
+		\includegraphics[width=0.75\textwidth]{N2.jpg}
+		\caption{\label{fig:Absorption}Absorption index $\kappa (x)$}
+%		\centering
+	\end{figure}
+	
+	
 
 	\newpage
 	\section{Results}
-	Results see Figure \ref{fig:Results}
+	Numerical algorithm and analytical solution were both implemented and compared, results can be seen in Figure \ref{fig:Results}. In first row depicts Crank-Nicolson numerical method, second row shows analytical solution, first and second columns show real component of electric field and intensity of light consequently. Parameters of laser beam in our case are: z-meshsize = x-meshsize 1 $\mu m$, wavelength $\lambda$ 20 $\mu m$, waist $w_o$ 30 $\mu m$, refractive index $n_o$ = 1 
+	
 	\begin{figure}[h!]
 		\hspace{-30mm}
-		\includegraphics[width=1.5\textwidth]{N2.jpg}
-		\caption{\label{fig:Results}Here you can see the similarity between two methods.}
+		\includegraphics[width=1.5\textwidth]{N1.jpg}
+		\caption{\label{fig:Results}Comparison of two methods.}
 %		\centering
 	\end{figure}
 	\section{Conlusion}

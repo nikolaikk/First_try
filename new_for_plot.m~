@@ -1,0 +1,23 @@
+
+n=1;
+x=linspace(-400,399,800);
+rigion = 1/2;
+k_grad = ((min(x)+max(x)*rigion-x(1:round(length(x)*rigion/2)))*rigion/2).^2;
+k_abs = zeros(1,length(x));
+k_abs(1:length(k_grad))= k_grad;
+k_abs(end-length(k_grad)+1:end) = flip(k_grad);
+% figure, plot(x,k_abs)
+n = n + 0.00005j*k_abs;
+% k = 2*pi/Lambda*n;
+
+fig1 = figure;
+set(fig1,'Position',[0,0,1000,600])
+plot(k_abs)
+
+xlabel ('x (\mu m)','FontSize', 18);
+ylabel ('\kappa','FontSize', 18);
+
+rotate3d on, title('Absorption Index','FontSize', 18);
+colormap jet, colorbar;
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
