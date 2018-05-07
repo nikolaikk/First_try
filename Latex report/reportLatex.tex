@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{float}
 
 \title{Report\\Numerical Simulation of Beam Propagation including Error Convergence Analysis}
 \date{15-05-2018}
@@ -35,13 +36,14 @@
 	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
 	Using paraxial approximation we see that third term is smaller than other, therefore can be neglected, as result we get following equation.
 	
-	\begin{equation}
+	\begin{equation}\label{eq:1}
 	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
 	\end{equation}
 	Solving this differential equation we find $u$ hence we find $E$. We assume that $k = k_o$, therefore solution for one dimensional case, where wave propagates in z-direction and oscillates in xz plane is,
-	
-	\[E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)\]
-	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the table below. This electric field formula will be later used as reference to numerical solution.
+	\begin{equation}\label{eq:2}
+	E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)
+	\end{equation}
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution.
 	Intensity can be calculated based on electric field, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$.
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
@@ -50,23 +52,22 @@
 
 	\begin{table}[h!]
 		\begin{center}
-%			\caption{Values.}
-			\label{tab:table1}
 			\begin{tabular}{c| c| c} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
 				\textbf{Beam Radius} & \textbf{Beam Curvature} & \textbf{Gouy phase}\\
 				\hline
 				&&\\
 				$w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}$ & $R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]$ & $\phi(z)=arctan\Big(\frac{z\lambda}{\pi w_o^2}\Big)$\\
 			\end{tabular}
+			\caption{\label{tab:Table1} Auxiliary formulas to equation \ref{eq:2}.}
 		\end{center}
 	\end{table}
 	
 	\subsection{Numerical solution}
-	Equation (1) for one dimensional case can be rewritten in the following form.
-	\begin{equation}
+	Equation \ref{eq:1} for one dimensional case can be rewritten in the following form.
+	\begin{equation}\label{eq:3}
 	2ik_o\frac{\partial u}{\partial z}=\frac{\partial^2 u}{\partial x^2}+(k^2-k_o^2)u
 	\end{equation}
-	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is descritization of formula (2), formula should be descritized for z-component and x-component. For beggining let's do descitization only for z component, our equation will get following form.
+	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is descritization of formula (\ref{eq:3}), formula should be descritized for z-component and x-component. For beggining let's do descitization only for z component, our equation will get following form.
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\]
 	Index $l$ denotes the order of grid point in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\]
@@ -129,16 +130,55 @@
 %		\centering
 	\end{figure}
 	\subsection{Absorption Boundary Condition}
-	In this section we show the results of applying ABC. In Figure \ref{fig:Absorption2} the necessity of applying ABC can be seen.
+	In this section we show the results of applied ABC. In Figure \ref{fig:Absorption2} the necessity of applying ABC can be seen. In the figure on the left no ABC is applied, as result reflection occurs on the boundary on the top and bottom, because of reflection interference effect can be observed. In the figure on the right ABC is applied. Gradual absorption of electric wave can be observed, also wave doesn't reach the boundary.
 	
 	\begin{figure}[h!]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{N3.jpg}
-		\caption{\label{fig:Absorption2}Comparison of two methods.}
-%		\centering
+		\caption{\label{fig:Absorption2}Propagation of electric field. On the left implementation of numerical method without ABC, on the right with ABC. Parameters used: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 10 $\mu m$, refractive index ($n_o$) = 1. For ABC simulation $\kappa_{max}$ = 0.0013, $\delta$ =  50 $\mu m$, $l$ = 200 $\mu m$.}
 	\end{figure}
+	\subsection{X and Z direction meshsize relation}
+	In this section we made a research on how x-meshsize and z-meshsize relation affect simulation. In Figure \ref{fig:Relation} change of z-meshsize changes the result of numerical approach. At the point where z-meshsize is equal to x-meshsize numerical method has the most similarity to analytical solution. As result, we can conclude that once one changes x-meshsize, z-meshsize should be changed too and furthermore z-meshsize should be equal to x-meshsize. In the Figure below parameters are: x-meshsize  = 0.5 $\mu m$ is kept constant, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = 1, 0.75, 0.5, 0.375, 0.25 $\mu m$.
+%	
+	\begin{figure}[H]
+		\hspace{-22.5mm}
+		\includegraphics[width=1.35\textwidth]{change1234.jpg}	
+	\end{figure}
+	
+	\begin{figure}[H]
+		\hspace{-24.5mm}
+		\includegraphics[width=0.725\textwidth]{change5.jpg}	
+		\caption{\label{fig:Relation} Numerically computed electric field at different relation of x-meshize and y-meshsize compared to analytical solution.}
+	\end{figure}
+	
+	\subsection{Error convergence}
+	In this section error convergence is calculated as described in section 1.2.2, plots are presented in Figure \ref{fig:Error} and results in Table \ref{tab:Table2}. From table we see that if number of grid points increases twice, $L_{2}$ norm error decreases thrice , $L_{\infty}$ increases twice and so on. From Figure we see that of error has steady behavior in logarithmic scale. This convergence is reached at following parameters: wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = x-meshsize  = \{2, $\sqrt{2}$, 1, $0.5\sqrt{2}$, 0.5, $0.25\sqrt{2}$, 0.25\} $\mu m$.
+	\begin{figure}[H]
+		\hspace{-30mm}
+		\includegraphics[width=1.5\textwidth]{error.jpg}
+		\caption{\label{fig:Error} $L_{2}$, $L_{\infty}$ errors and error at a particular point are presented.}
+	\end{figure}
+	
+	\begin{table}[h!]
+		\hspace{-15mm}
+		\begin{tabular}{c| c| c| c| c| c| c| c| c} 
+			\textbf{ Number of Grid points}& 1 & 2 & 4 & 8 & 16 & 32 & 64 & increase \bf{2x}\\
+			\hline
+			\textbf{$L_{2}$norm error}& 1 & 0.3546 & 0.1254 & 0.0443 & 0.0156 & 0.0055 & 0.0019& decrease \bf{3x}\\
+			\hline
+			\textbf{$L_{\infty}$norm error}& 1 & 0.5001 & 0.2503 & 0.1250 & 0.0625 & 0.0312 & 0.0156& decrease \bf{2x}\\
+			\hline
+			\textbf{Error at a point}& 1 & 0.5410 & 0.2874 & 0.1457 & 0.0745 & 0.0393 & 0.0188& decrease \bf{2x}\\
+			
+		\end{tabular}
+		\caption{\label{tab:Table2}An example table.}
+	\end{table}
+	
 	\newpage
+	
 	\section{Conlusion}
+	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However in order to keep physical domain same, computational domain should be increased.
+	
 	\end{document}
 
 

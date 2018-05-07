@@ -7,21 +7,21 @@ epsilon = 8.854187817e-12;
 c = 299792458;
 
 zo = 0;                     % micrometer
-zend = 300;                % micrometer
+zend = 600;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
-xo = -100;                  % micrometer
+xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
 Lambda = 10;              % micrometer
-wo = 10;                    % micrometer
+wo = 25;                    % micrometer
 no = 1;
 
 
 
 %%              Start calculation
 part_of_program = 0;
-part_of_program = 1;
+% part_of_program = 1;
 
 record_status = 0;
 % record_status = 1;
@@ -44,7 +44,9 @@ if part_of_program  == 0
     to = 0.5;
     range_z = from:-step:to;
 %     range_z = [4,2];
-    range_z = [2,1*sqrt(2),1,sqrt(2)*0.5,0.5];
+    range_z = [2,1*sqrt(2),1,sqrt(2)*0.5,0.5,0.25*sqrt(2),0.25];
+%     range_z = [1,0.75,0.5,0.375,0.25];
+
 
     % Video
     if record_status == 1
@@ -71,6 +73,21 @@ if part_of_program  == 0
         Ez_diff = abs(abs(real(Ez))-abs(real(Ez_analytic)));
         err_l2(ii) = 1/Number_Nz_Nx(ii) * sqrt(sum(sum(Ez_diff.^2)));
         err_max(ii) = max(max(Ez_diff));
+        
+        
+        %%
+%         fig1 = figure;
+%         set(fig1,'Position',[0,0,1000,1200])
+%         [Z, X] = meshgrid(z,x);
+%         subplot(2,1,1)
+%         plot_mesh_function(Z,X,abs(real(Ez)),'z (\mum)','x (\mum)',...
+%             'Real Part Electric Field',...
+%             {'\Ree(E_{z}) Crank–Nicolson BPM',strcat('x-meshsize =',num2str(x_mesh),...
+%             '\mum and z-meshsize =',num2str(i_z_mesh),' \mum')})
+%         subplot(2,1,2)
+%         plot_mesh_function(Z,X,abs(real(Ez_analytic)),'z (\mum)','x (\mum)',...
+%             'Real Part Electric Field','\Ree(E_{z}) Analytic Gaussian Beam')
+        %%
         
         % Error at particular point
         xp = 0.7;     % from 0 to 1
@@ -101,25 +118,35 @@ if part_of_program  == 0
     end
     toc
 
-    fig = figure,set(fig,'Position',[0,0,900,1200]);
+    fig = figure,set(fig,'Position',[0,0,1500,500]);
     
-    subplot(3,1,1),plot(Number_Nz_Nx,err_l2,'o-'),title('L2 norm error')
-    xlabel('Number of grid points'),ylabel('Error')
+    Linewidth= 3;
+    subplot(1,3,1),hold on, plot(Number_Nz_Nx,err_l2,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_l2,'*k','Linewidth',Linewidth),hold off;
+    title('L_{2} norm error','FontSize', 18)
+    xlabel('Number of grid points','FontSize', 18),
+    ylabel('Error','FontSize', 18);
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
-    hold on% f(1,i+1) = 0;
-% f(end,i+1) = 0;
-
-     
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
+   
+    subplot(1,3,2), hold on, plot(Number_Nz_Nx,err_max,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_max,'*k','Linewidth',Linewidth),hold off;
+    title('L_{\infty} norm error','FontSize', 18);
+    xlabel('Number of grid points','FontSize', 18),
+    ylabel('Error','FontSize', 18);
+    set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
     
-    subplot(3,1,2), plot(Number_Nz_Nx,err_max,'o-')
-    title('Lmax norm error')
-    xlabel('Number of grid points'),ylabel('Error')
+    subplot(1,3,3), hold on, plot(Number_Nz_Nx,err_point,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_point,'*k','Linewidth',Linewidth),hold off;
+    title({'Error at a particular physical point ',strcat('( x=',num2str(xp*(xend-xo)-xend),'\mum, z=',...
+        num2str(zp*zend),'\mum)')},'FontSize', 18)
+    xlabel('Number of grid points','FontSize', 18),
+    ylabel('Error','FontSize', 18);
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+    a = get(gca,'XTickLabel');
+    set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
     
-    subplot(3,1,3), plot(Number_Nz_Nx,err_point,'o-')
-    title(strcat('Error at physical point (',num2str(xp),', ',num2str(zp),')'))
-    xlabel('Number of grid points'),ylabel('Error')
-    set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
+    
     
     
     % Show error and zrange    
@@ -185,39 +212,6 @@ plot_mesh_function(Z,X,I_analytic,'z (\mum)','x (\mum)','Intensity',...
     'Intensity Analytic Gaussian Beam')
 
 
-
-
-
-fig2 = figure;
-set(fig2,'Position',[0,0,2000,600])
-
-subplot(1,2,1)
-plot_mesh_function(Z,X,(abs(real(Ez_abs))),'z (\mum)','x (\mum)',...
-    'Real Part Electric Field','b')
-
-subplot(1,2,2)
-plot_mesh_function(Z,X,(abs(real(Ez))),'z (\mum)','x (\mum)',...
-    'Real Part Electric Field','b')
-
-
-% subplot(3,1,3)
-% I_FFT = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no,true);
-
-% subplot(3,1,3)
-% mesh(Z,X,(I-I_analytic)),view([0,90])
-% axis tight, shading interp, xlabel ('z (\mum)'), ylabel ('x (\mum)');
-% zlabel Intensity, rotate3d on, zlim([0,1]), xlim([0,zend]), ylim([xo,-xo]),...
-%     title('Intensity Difference');
-
-% disp(norm(I-I_analytic))
-
-% fig2 = copyobj(fig1,0);
-% set(fig2, 'Position', [860,0,800,1200])
-% subplot(3,1,1),view([0,-90,0]);
-% subplot(3,1,2),view([0,-90,0]);
-% subplot(3,1,3),view([0,-90,0]);
-
-% divergence_angle = theta_angle(I_analytic,z_mesh,x_mesh,Lambda,'plot');
 end
 
 
@@ -248,7 +242,7 @@ k_abs(1:length(k_grad))= k_grad;
 k_abs(end-length(k_grad)+1:end) = flip(k_grad);
 % figure, plot(x,k_abs)
 n = n + 0.0013j*k_abs;
-k = 2*pi/Lambda*n;
+% k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
 L = zeros(Nx);
@@ -289,7 +283,7 @@ xlabel (x_label,'FontSize', 18);
 ylabel (y_label,'FontSize', 18);
 zlabel (z_label);
 rotate3d on, 
-% title(plot_title,'FontSize', 18);
+title(plot_title,'FontSize', 18);
 colormap jet, colorbar;
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
