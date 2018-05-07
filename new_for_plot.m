@@ -17,25 +17,29 @@ fig1 = figure;
 set(fig1,'Position',[0,0,1000,600])
 plot(x,k_abs, 'linewidth',3)
 
-xlabel ('x (\mu m)','FontSize', 18);
-ylabel ('\kappa','FontSize', 18);
+xlabel ('x (\mum)','FontSize', 18);
+ylabel ('\kappa(x)','FontSize', 18);
 
-title('Absorption Index','FontSize', 18);
+% title('Absorption Index','FontSize', 18);
 
 a = get(gca,'XTickLabel');
-set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',40)
 
 
 
 %% For absorption 
 
+
+epsilon = 8.854187817e-12;
+c = 299792458;
+
 zo = 0;                     % micrometer
-zend = 500;                % micrometer
+zend = 800;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
-xo = -100;                  % micrometer
+xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 10;              % micrometer
-wo = 15;                    % micrometer
+Lambda = 20;              % micrometer
+wo = 50;                    % micrometer
 no = 1;

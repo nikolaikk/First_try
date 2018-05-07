@@ -3,11 +3,10 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 
-
 \title{Report\\Numerical Simulation of Beam Propagation including Error Convergence Analysis}
 \date{15-05-2018}
 
-\author{Prepered by: Nicolae Cadin \\Supervised by: Ramon Springer}
+\author{Prepared by: Nicolae Cadin \\Supervised by: Ramon Springer}
 
 \begin{document}
 	
@@ -42,7 +41,8 @@
 	Solving this differential equation we find $u$ hence we find $E$. We assume that $k = k_o$, therefore solution for one dimensional case, where wave propagates in z-direction and oscillates in xz plane is,
 	
 	\[E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)\]
-	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the table below.This electric field formula will be later used as reference to numerical solution.
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the table below. This electric field formula will be later used as reference to numerical solution.
+	Intensity can be calculated based on electric field, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$.
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
 %	\[R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]\]
@@ -104,27 +104,40 @@
 	Implementing numerical method, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
 	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg];\]
 	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg];\]
-	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of our computational domain, in our case will be corresponding to range of x, $\delta$ is a part of total width where absorption will be introduced, geometry of introduced absorption can be seen at 
-	It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}
+	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of our computational domain, in our case will be corresponding to range of x, $\delta$ is a part of total width where absorption will be introduced, geometry of introduced absorption can be seen in Figure \ref{fig:Absorption}. It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}.
 	\begin{figure}[h!]
-		\hspace{+10mm}
-		\includegraphics[width=0.75\textwidth]{N2.jpg}
-		\caption{\label{fig:Absorption}Absorption index $\kappa (x)$}
-%		\centering
+		\centering 
+		\includegraphics[width=0.5\textwidth]{sketchN1.png}\includegraphics[width=0.5\textwidth]{N2.jpg}
+		\caption{\label{fig:Absorption}Absorption boundary, figure on the right show the geometry of absorbed boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
 	\end{figure}
-	
-	
-
+	\subsubsection{Error convergence}	
+	In order to assess the accuracy of the numerical method, error is calculated. Error is a difference between numerical and analytical electric field and can be calculated using different norms. There is fixed relation between number of grid point and total error, if one increases the number of grid points, error is expected to decrease. If number of grid points is increased $2^n$ times, error should decrease $2^{-n}$ times, $n$ is integer number which also tells about order of error convergence.
+	\[||Error||_2 = \frac{1}{\text{{\it Number of grid points}}}\sqrt{\sum\limits_{i=1}^n (E_{\text{\it z numerical}}-E_{\text{\it z analytic}})^2 }
+	\]
+	\[
+	||Error||_\infty = (E_{\text{\it z numerical}}-E_{\text{\it z analytic}})_{maximum}
+	\]
+	\[ ||Error||_{\text{\it at particular point}} = \text{\it Error at any particular physical point is recorded}
+	\]
 	\newpage
 	\section{Results}
-	Numerical algorithm and analytical solution were both implemented and compared, results can be seen in Figure \ref{fig:Results}. In first row depicts Crank-Nicolson numerical method, second row shows analytical solution, first and second columns show real component of electric field and intensity of light consequently. Parameters of laser beam in our case are: z-meshsize = x-meshsize 1 $\mu m$, wavelength $\lambda$ 20 $\mu m$, waist $w_o$ 30 $\mu m$, refractive index $n_o$ = 1 
-	
+	Numerical algorithm and analytical solution were both implemented and compared, results can be seen in Figure \ref{fig:Results}. In first row depicts Crank-Nicolson numerical method, second row shows analytical solution, first and second columns show real component of electric field and intensity of light consequently. Parameters of laser beam in our case are: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 20 $\mu m$, waist ($w_o$) = 30 $\mu m$, refractive index ($n_o$) = 1.	
 	\begin{figure}[h!]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{N1.jpg}
 		\caption{\label{fig:Results}Comparison of two methods.}
 %		\centering
 	\end{figure}
+	\subsection{Absorption Boundary Condition}
+	In this section we show the results of applying ABC. In Figure \ref{fig:Absorption2} the necessity of applying ABC can be seen.
+	
+	\begin{figure}[h!]
+		\hspace{-30mm}
+		\includegraphics[width=1.5\textwidth]{N3.jpg}
+		\caption{\label{fig:Absorption2}Comparison of two methods.}
+%		\centering
+	\end{figure}
+	\newpage
 	\section{Conlusion}
 	\end{document}
 

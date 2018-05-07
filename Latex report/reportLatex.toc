@@ -2,5 +2,7 @@
 \contentsline {subsection}{\numberline {1.1}Analytical solution}{2}
 \contentsline {subsection}{\numberline {1.2}Numerical solution}{3}
 \contentsline {subsubsection}{\numberline {1.2.1}Absorbing Boundary Condition}{4}
-\contentsline {section}{\numberline {2}Results}{5}
-\contentsline {section}{\numberline {3}Conlusion}{5}
+\contentsline {subsubsection}{\numberline {1.2.2}Error convergence}{5}
+\contentsline {section}{\numberline {2}Results}{6}
+\contentsline {subsection}{\numberline {2.1}Absorption Boundary Condition}{6}
+\contentsline {section}{\numberline {3}Conlusion}{7}

@@ -1,4 +1,4 @@
-clear
+% clear
 %%              Beam Propagaton Method
     
 %%              Initialization
@@ -7,21 +7,21 @@ epsilon = 8.854187817e-12;
 c = 299792458;
 
 zo = 0;                     % micrometer
-zend = 800;                % micrometer
+zend = 300;                % micrometer
 z_mesh = 1;                 % micrometer
 ratio = 1;
-xo = -400;                  % micrometer
+xo = -100;                  % micrometer
 xend = -xo;                 % micrometer
 x_mesh = z_mesh/ratio;      % micrometer
-Lambda = 20;              % micrometer
-wo = 50;                    % micrometer
+Lambda = 10;              % micrometer
+wo = 10;                    % micrometer
 no = 1;
 
 
 
 %%              Start calculation
 part_of_program = 0;
-% part_of_program = 1;
+part_of_program = 1;
 
 record_status = 0;
 % record_status = 1;
@@ -44,7 +44,7 @@ if part_of_program  == 0
     to = 0.5;
     range_z = from:-step:to;
 %     range_z = [4,2];
-    range_z = [2,1,0.5];
+    range_z = [2,1*sqrt(2),1,sqrt(2)*0.5,0.5];
 
     % Video
     if record_status == 1
@@ -62,7 +62,8 @@ if part_of_program  == 0
 
         I = epsilon*no*c*0.5*abs(Ez).^2;
 %         I_analytic = function_analytic_BMP(Lambda,wo,x,z);
-        [I_analytic, Ez_analytic] = function_analytic_BMP(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+        [I_analytic, Ez_analytic] = function_analytic_BMP(zo, zend, i_z_mesh,...
+            xo, xend, x_mesh, Lambda, wo, no);
 
         Number_Nz(ii) = length(z);
         Number_Nz_Nx(ii) = length(z)*length(x);
@@ -87,7 +88,8 @@ if part_of_program  == 0
         if record_status == 1
 %             imshow(imresize(I,[800,1600]))
             Ez_diff(xp_coord,zp_coord)=0.0001;
-            contour((imresize(Ez_diff,[800,1600])),25),hold on,scatter(zp*1600,xp*800),hold off;
+            contour((imresize(Ez_diff,[800,1600])),25),hold on
+            scatter(zp*1600,xp*800),hold off;
             colorbar, set(gcf,'Position',[0,0,800,1600]);
             vid.writeVideo(getframe(gca));
         end
@@ -109,11 +111,13 @@ if part_of_program  == 0
 
      
     
-    subplot(3,1,2), plot(Number_Nz_Nx,err_max,'o-'),title('Lmax norm error')
+    subplot(3,1,2), plot(Number_Nz_Nx,err_max,'o-')
+    title('Lmax norm error')
     xlabel('Number of grid points'),ylabel('Error')
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     
-    subplot(3,1,3), plot(Number_Nz_Nx,err_point,'o-'),title(strcat('Error at physical point (',num2str(xp),', ',num2str(zp),')'))
+    subplot(3,1,3), plot(Number_Nz_Nx,err_point,'o-')
+    title(strcat('Error at physical point (',num2str(xp),', ',num2str(zp),')'))
     xlabel('Number of grid points'),ylabel('Error')
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     
@@ -121,9 +125,18 @@ if part_of_program  == 0
     % Show error and zrange    
     fprintf(strcat('delta_z values  :   ',num2str(range_z),'\n'))
 %     fprintf(strcat('L2 normed error values  :   ',num2str(err_l2),'\n'))
-    fprintf(strcat('L2 normed error values devided by max  :   ',num2str(err_l2/err_l2(1)),'   error decreases x',num2str(round(err_l2(1)/err_l2(2))),'\n'))
-    fprintf(strcat('Lmax normed error values devided by max  :   ',num2str(err_max/err_max(1)),'   error decreases x',num2str(round(err_max(1)/err_max(2))),'\n'))
-    fprintf(strcat('Error at certain point devided by max  :   ',num2str(err_point/err_point(1)),'   error decreases x',num2str(round(err_point(1)/err_point(2))),'\n'))    
+    fprintf(strcat('Number of grid points devided by max  :   ',...
+        num2str(Number_Nz_Nx/Number_Nz_Nx(1)),'   so increases x',...
+        num2str(round(Number_Nz_Nx(2)/Number_Nz_Nx(1))),'\n'))
+    fprintf(strcat('L2 normed error values devided by max  :   ',...
+        num2str(err_l2/err_l2(1)),'   error decreases x',...
+        num2str(round(err_l2(1)/err_l2(2))),'\n'))
+    fprintf(strcat('Lmax normed error values devided by max  :   ',...
+        num2str(err_max/err_max(1)),'   error decreases x',...
+        num2str(round(err_max(1)/err_max(2))),'\n'))
+    fprintf(strcat('Error at certain point devided by max  :   ',...
+        num2str(err_point/err_point(1)),'   error decreases x',...
+        num2str(round(err_point(1)/err_point(2))),'\n'))    
     
     % Plot 2
     
@@ -143,7 +156,8 @@ if part_of_program  == 0
 else
 
 [Ez,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
-[I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no);
+[I_analytic,Ez_analytic] = function_analytic_BMP(zo, zend, z_mesh, xo, xend, ...
+    x_mesh, Lambda, wo, no);
 
 
 [Z, X] = meshgrid(z,x);
@@ -155,16 +169,35 @@ fig1 = figure;
 set(fig1,'Position',[0,0,2000,1200])
 
 subplot(2,2,1)
-plot_mesh_function(Z,X,(abs(real(Ez))),'z (\mum)','x (\mum)','Real Part Electric Field','\Ree(E_{z}) Crank–Nicolson BPM')
+plot_mesh_function(Z,X,(abs(real(Ez))),'z (\mum)','x (\mum)',...
+    'Real Part Electric Field','\Ree(E_{z}) Crank–Nicolson BPM')
 
 subplot(2,2,2)
-plot_mesh_function(Z,X,I,'z (\mum)','x (\mum)','Intensity','Intensity Crank–Nicolson BPM')
+plot_mesh_function(Z,X,I,'z (\mum)','x (\mum)',...
+    'Intensity','Intensity Crank–Nicolson BPM')
 
 subplot(2,2,3)
-plot_mesh_function(Z,X,abs(real(Ez_analytic)),'z (\mum)','x (\mum)','Real Part Electric Field','\Ree(E_{z}) Analytic Gaussian Beam')
+plot_mesh_function(Z,X,abs(real(Ez_analytic)),'z (\mum)','x (\mum)',...
+    'Real Part Electric Field','\Ree(E_{z}) Analytic Gaussian Beam')
 
 subplot(2,2,4)
-plot_mesh_function(Z,X,I_analytic,'z (\mum)','x (\mum)','Intensity','Intensity Analytic Gaussian Beam')
+plot_mesh_function(Z,X,I_analytic,'z (\mum)','x (\mum)','Intensity',...
+    'Intensity Analytic Gaussian Beam')
+
+
+
+
+
+fig2 = figure;
+set(fig2,'Position',[0,0,2000,600])
+
+subplot(1,2,1)
+plot_mesh_function(Z,X,(abs(real(Ez_abs))),'z (\mum)','x (\mum)',...
+    'Real Part Electric Field','b')
+
+subplot(1,2,2)
+plot_mesh_function(Z,X,(abs(real(Ez))),'z (\mum)','x (\mum)',...
+    'Real Part Electric Field','b')
 
 
 % subplot(3,1,3)
@@ -190,7 +223,8 @@ end
 
 
 %%              Main BPM funciton 
-function [f,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no)
+function [f,x,z,Nz,Nx,L] = solve_BPM(zo, zend, z_mesh, xo, xend, x_mesh, ...
+    Lambda, wo, no)
 
 x = xo:x_mesh:xend-x_mesh;
 z = zo:z_mesh:zend-z_mesh;
@@ -214,7 +248,7 @@ k_abs(1:length(k_grad))= k_grad;
 k_abs(end-length(k_grad)+1:end) = flip(k_grad);
 % figure, plot(x,k_abs)
 n = n + 0.0013j*k_abs;
-% k = 2*pi/Lambda*n;
+k = 2*pi/Lambda*n;
 %%              Definition of L matrix
 
 L = zeros(Nx);
@@ -254,7 +288,8 @@ axis tight, shading interp;
 xlabel (x_label,'FontSize', 18);
 ylabel (y_label,'FontSize', 18);
 zlabel (z_label);
-rotate3d on, title(plot_title,'FontSize', 18);
+rotate3d on, 
+% title(plot_title,'FontSize', 18);
 colormap jet, colorbar;
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
