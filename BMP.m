@@ -21,7 +21,7 @@ no = 1;
 
 %%              Start calculation
 part_of_program = 0;
-% part_of_program = 1;
+part_of_program = 1;
 
 record_status = 0;
 % record_status = 1;
@@ -128,7 +128,7 @@ if part_of_program  == 0
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     a = get(gca,'XTickLabel');
     set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
-   
+   Audit
     subplot(1,3,2), hold on, plot(Number_Nz_Nx,err_max,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_max,'*k','Linewidth',Linewidth),hold off;
     title('L_{\infty} norm error','FontSize', 18);
     xlabel('Number of grid points','FontSize', 18),

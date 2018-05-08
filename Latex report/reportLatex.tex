@@ -1,13 +1,19 @@
-\documentclass{article}
+\documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tabto}
 
 \title{Report\\Numerical Simulation of Beam Propagation including Error Convergence Analysis}
 \date{15-05-2018}
 
 \author{Prepared by: Nicolae Cadin \\Supervised by: Ramon Springer}
+
+
+
 
 \begin{document}
 	
@@ -15,8 +21,10 @@
 	\pagenumbering{gobble}
 	\maketitle
 	\newpage
-	\tableofcontents
+	\tableofcontents	
+
 	\pagenumbering{arabic}
+%	\setlength\parindent{0pt}
 	
 	\newpage
 	\section{Introduction}
@@ -87,13 +95,13 @@
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l+1}+L_hu^l\bigg)\]
 	$L_h$ is spacial discretization operator for one dimensional case and is numerically defined in Thomas algorithm as 
 
-	\setlength\arraycolsep{-2.5pt}
-	\[ L = \begin{bmatrix}
+	\setlength\arraycolsep{-4.5pt}
+	\[ L = \frac{1}{\Delta x^2}\begin{bmatrix}
     -2+(k^2-k_o^2)\Delta x^2& 1& 0& &\dots& & 0 \\
     1 & -2+(k^2-k_o^2)\Delta x^2 & 1& &\dots& & 0 \\
-    0 &     1& -2+(k^2-k_o^2)\Delta x^2 & &\dots& & 0 \\
+    0 &     1& -2+(k^2-k_o^2)\Delta x^2 & & & & 0 \\
     \vdots & \vdots & \vdots & &\dots& & \vdots \\
-    0& 0& 0& &\dots& &     -2+(k^2-k_o^2)\Delta x^2
+    0& 0& 0& && &     -2+(k^2-k_o^2)\Delta x^2
 	\end{bmatrix}\]
 	
 	
@@ -156,7 +164,7 @@
 	\begin{figure}[H]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{error.jpg}
-		\caption{\label{fig:Error} $L_{2}$, $L_{\infty}$ errors and error at a particular point are presented.}
+		\caption{\label{fig:Error} $L_{2}$, $L_{\infty}$ errors and error at a particular point.}
 	\end{figure}
 	
 	\begin{table}[h!]
@@ -175,11 +183,132 @@
 	\end{table}
 	
 	\newpage
-	
 	\section{Conlusion}
 	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However in order to keep physical domain same, computational domain should be increased.
 	
-	\end{document}
+	\newpage
+	\section*{Appendix A: ~~Implementation of Crank-Nicolson method}
+	\addcontentsline{toc}{section}{Appendix A: Implementation of Crank-Nicolson method}
+		\texttt{\noindent
+			\textcolor{OliveGreen}{// INITIALIZATION\newline\newline
+		// x-coordinate which specifies our computational range in micrometers.}\newline
+		x0 = 400 \newline
+		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
+		x\_mesh = 1 \newline
+		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
+		x = from -x0 to x0 with step x\_mesh.\newline
+		\textcolor{OliveGreen}{// number of grid points in x-direction.}\newline
+		Nx = length(x)\newline\newline
+		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
+		zend = 800 \newline
+		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
+		z\_mesh = x\_mesh \newline
+		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
+		z = from 0 to zend with step z\_mesh\newline
+		\textcolor{OliveGreen}{// number of grid points in z-direction.}\newline
+		Nz = length(z)\newline
+		\textcolor{OliveGreen}{// waist in micrometers.}\newline
+		wo = 30 \newline
+		\textcolor{OliveGreen}{// wavelength in micrometers.}\newline
+		lambda = 10\newline
+		\textcolor{OliveGreen}{// refractive index of air in vacuum.}\newline
+		no = 1\newline
+		\textcolor{OliveGreen}{// spacial frequency with no.}\newline
+		ko = 2*pi*no/lambda\newline
+		\textcolor{OliveGreen}{// refractive index of medium.}\newline
+		n = 1\newline
+		\textcolor{OliveGreen}{// spacial frequency with n.}\newline
+		k = 2*pi*n/lambda\newline\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, complete electric field, 2-dimensional grid.}\newline
+		E = zeros(Nx,Nz)\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, spacial component of electric field, 2-dimensional grid.}\newline
+		u = zeros(Nx,Nz)\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, periodic component of electric field in z direction, 2-dimensional grid.}\newline
+		f = zeros(Nx,Nz)\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nx size, tridiagonal matrix or Thomas algorithm (see section 1.2).}\newline
+		L = zeros(Nx,Nx)\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nx size, identity matrix used in Thomas algorithm.}\newline
+		I = eye(Nx,Nx)\newline\newline
+		\textcolor{OliveGreen}{// set first colomn of u to gaussian.}\newline
+		u(first\_colomn) = exp(-(x/wo)\string^2)\newline\newline
+		\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
+		\textcolor{OliveGreen}{// L matrix computation.}\newline
+		for i from 1 to Nx \newline
+		\indent L(i,i) = 1/x\_mesh\string^2*(-2+(ko\string^2-k\string^2)*x\_mesh\string^2)\newline
+		\indent if i>1\newline
+		\indent\indent L(i,i-1)=1/x\_mesh\string^2\newline
+		\indent\indent L(i-1,i)=1/x\_mesh\string^2\newline
+		\indent end if\newline
+		end for\newline\newline	
+		\textcolor{OliveGreen}{// Spacial component of electric field computation.}\newline
+		for i\_colomn from 2 to Nz\newline
+		\indent u(i\_colomn) = MatrixInverse(I-x\_mesh*L/(4*1j*ko))*...\newline
+		\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent(E+x\_mesh*L/(4*1j*ko)))*u(i\_colomn-1)\newline
+		end for\newline\newline
+		\textcolor{OliveGreen}{// Periodic component of electric field in z direction computation.}\newline
+		for i\_colomn from 1 to Nz\newline
+		\indent f(i\_colomn) = exp(-1j*ko*z(i\_colomn))\newline
+		end for\newline\newline
+		\textcolor{OliveGreen}{// Complete Electric field.}\newline
+		E = Elementwise\_multiplication(u,f)\newline\newline
+	    }
+		\newpage
+
+	
+	\section*{Appendix B: ~~Implementation of analytical method}
+	\addcontentsline{toc}{section}{Appendix B: Implementation of analytical method}
+	\texttt{\noindent
+		\textcolor{OliveGreen}{//INITIALIZATION\newline\newline
+		// x-coordinate which specifies our computational range in micrometers}.\newline
+		x0 = 400 \newline
+		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
+		x\_mesh = 1 \newline
+		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
+		x = from -x0 to x0 with step x\_mesh.\newline
+		\textcolor{OliveGreen}{// number of grid points in x-direction.}\newline
+		Nx = length(x)\newline
+		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
+		zend = 800 \newline
+		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
+		z\_mesh = x\_mesh \newline
+		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
+		z = from 0 to zend with step z\_mesh\newline
+		\textcolor{OliveGreen}{// number of grid points in z-direction.}\newline
+		Nz = length(z)\newline
+		\textcolor{OliveGreen}{// waist in micrometers.}\newline
+		wo = 30 \newline
+		\textcolor{OliveGreen}{// width in micrometers.}\newline
+		w = 0 \newline
+		\textcolor{OliveGreen}{// curvature in micrometers.}\newline
+		r = 0 \newline
+		\textcolor{OliveGreen}{// Gouy phase.}\newline
+		gouy\_phase = 0 \newline		
+		\textcolor{OliveGreen}{// wavelength in micrometers.}\newline
+		lambda = 10\newline
+		\textcolor{OliveGreen}{// Rayleigh length in micrometers.}\newline
+		zR = pi*wo\string^2/lambda;\newline
+		\textcolor{OliveGreen}{// refractive index of air in vacuum.}\newline
+		no = 1\newline
+		\textcolor{OliveGreen}{// spacial frequency with no.}\newline
+		ko = 2*pi*no/lambda\newline
+		\textcolor{OliveGreen}{// Electic field.}\newline
+		E = zeros(Nx,Nz)\newline
+		\textcolor{OliveGreen}{// Electic field amplitude.}\newline
+		Eo = 1\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, spacial component of electric field, 2-dimensional grid.}\newpage
+		\noindent\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
+		\textcolor{OliveGreen}{// Electric field.}\newline
+		for i from 1 to Nz \newline
+		\indent w = wo*sqrt(1+(z(i)/zR).\string^2);\newline
+		\indent r = z(i)+(zR\string^2/z(i));\newline
+		\indent gouy\_phase = atan(z(i)/zR);\newline
+		\indent E(i\_colomn) = Eo*(wo/w)\string^0.5.*exp(-(x\string^2)/w\string^2) ...\newline \indent\indent\indent\indent\indent\indent\indent\indent*exp(1j*(k*z(i)+k*(x\string^2)/(2*r)-gouy\_phase))\newline
+		end for\newline\newline	
+	}
+	
+ 
+		
+\end{document}
 
 
 
