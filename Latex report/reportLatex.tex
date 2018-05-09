@@ -29,30 +29,29 @@
 	\newpage
 	\section{Introduction}
 	Beam propagation in media is of high interest for scientists and also for industrial purposes. 
-	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution of beam propagation. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero incident angle, so to fit the scope of mini-project, later on can be extended for more sophisticated cases.
+	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero incident angle, so to fit the scope of mini-project, later on can be extended for more sophisticated cases.
 	\subsection{Analytical solution}
 	To better analytically understand propagation of beam in space we should solve Helmholz Equation.
 	\begin{center}
 		$(\nabla^2+k^2)E = 0$		
 	\end{center}
-	This equation generally holds for electromagnetic wave, hence for electric and magnetic field components, for simplicity we chose electric field $E$. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of medium (here we assume it to be equal to 1). As assumption we consider that our wave propagates in $z$ direction and electric field can be represented in next form.
+	This equation generally holds for electromagnetic wave, hence for electric and magnetic field components, for simplicity we chose electric field $E$. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of the medium (here we assume it to be equal to 1). As assumption we consider that our wave propagates in $z$ direction and electric field can be represented in next form.
 	\begin{center}
 		$E(x,y,z)=u(x,y,z)e^{-ik_oz}$
 	\end{center}
 	$u$ is complex function which describes non-plane part of the beam. Substituting our ansatz into Helmholtz equation in cartesian coordinates and doing some simplifications we get.
 
 	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
-	Using paraxial approximation we see that third term is smaller than other, therefore can be neglected, as result we get following equation.
+	Using paraxial approximation we see that third term is smaller than others, therefore can be neglected, as result we get following equation.
 	
 	\begin{equation}\label{eq:1}
 	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
 	\end{equation}
-	Solving this differential equation we find $u$ hence we find $E$. We assume that $k = k_o$, therefore solution for one dimensional case, where wave propagates in z-direction and oscillates in xz plane is,
+	Solving this differential equation we find $u$, hence we find $E$. We assume that $k = k_o$, therefore solution for two dimensional case, where wave propagates in z-direction and oscillates in xz plane is,
 	\begin{equation}\label{eq:2}
 	E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)
 	\end{equation}
-	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution.
-	Intensity can be calculated based on electric field, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$.
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution. From here intensity can be calculated, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$. Implementation of analytical solution can be found it Appendix A. 
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
 %	\[R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]\]
@@ -71,28 +70,28 @@
 	\end{table}
 	
 	\subsection{Numerical solution}
-	Equation \ref{eq:1} for one dimensional case can be rewritten in the following form.
+	For one dimensional case Equation \ref{eq:1} can be rewritten in the following form.
 	\begin{equation}\label{eq:3}
 	2ik_o\frac{\partial u}{\partial z}=\frac{\partial^2 u}{\partial x^2}+(k^2-k_o^2)u
 	\end{equation}
-	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is descritization of formula (\ref{eq:3}), formula should be descritized for z-component and x-component. For beggining let's do descitization only for z component, our equation will get following form.
+	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is a discretization of formula (\ref{eq:3}), formula should be discretized for z-component and x-component. For beginning let's do discretization only for z component, our equation will get following form.
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\]
-	Index $l$ denotes the order of grid point in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
+	Index $l$ denotes the order of grid points in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\]
 	Neither this scheme shows good stability, however the combination of these two solves instability problem. These method is called {\bf Crank-Nicolson} method.
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=(1-\alpha)\frac{\partial^2 u^l}{\partial x^2}+(1-\alpha)(k^2-k_o^2)u^l+\alpha \frac{\partial^2 u^{l+1}}{\partial x^2}+\alpha(k^2-k_o^2)u^{l+1}\]
-	$\alpha$ here shows interest of which difference we want higher contribution, usually is set to 1/2. Then Crank-Nicolson scheme has next form.
+	$\alpha$ here shows interest of which difference we want higher contribution, usually is set to 1/2. Then Crank-Nicolson scheme gets next form.
 	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\bigg)+\frac{1}{2}\bigg(\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\bigg)\]
 	Now discretization of x-component can be performed.
 
 	\begin{equation*}
 	\begin{split}
-	2ik_o\frac{u_j^{l+1}-u_j^l}{\Delta z}=\frac{1}{2}\bigg(\frac{u_{j-1}^l-2u_j^l+u_{j+1}^l}{\Delta x^2}+&(k^2-k_o^2)u_j^l\bigg)+\\
+	2ik_o\frac{u_j^{l+1}-u_j^l}{\Delta z}=\frac{1}{2}\bigg(&\frac{u_{j-1}^l-2u_j^l+u_{j+1}^l}{\Delta x^2}+(k^2-k_o^2)u_j^l\bigg)+\\
 	& \frac{1}{2}\bigg(\frac{u_{j-1}^{l+1}-2u_j^{l+1}+u_{j+1}^{l+1}}{\Delta x^2}+(k^2-k_o^2)u_j^{l+1}\bigg)
 	\end{split}
 	\end{equation*}
-	$j$ index denotes the order of grid point in x-direction. Such discretization can be rewritten and later solved using triagonal matrix algorithm or so called {\bf Thomas algorithm}. 
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l+1}+L_hu^l\bigg)\]
+	$j$ index denotes the order of grid points in x-direction. Such discretization can be rewritten and later solved using tridiagonal matrix algorithm or so called {\bf Thomas algorithm}. 
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l}+L_hu^{l+1}\bigg)\]
 	$L_h$ is spacial discretization operator for one dimensional case and is numerically defined in Thomas algorithm as 
 
 	\setlength\arraycolsep{-4.5pt}
@@ -105,9 +104,9 @@
 	\end{bmatrix}\]
 	
 	
-	From here doing simple mathematical rearrangement we can write previous equation in the following form.
+	\noindent From here doing simple mathematical rearrangement we can write previous equation in the following form.
 		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
-	Here $I$ is identity matrix, which has the same size as triagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$.
+	Here $I$ is identity matrix, which has the same size as tridiagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$. Implementation of numerical solution can be found in Appendix B
 	
 	\subsubsection{Absorbing Boundary Condition}
 	Implementing numerical method, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
@@ -117,7 +116,7 @@
 	\begin{figure}[h!]
 		\centering 
 		\includegraphics[width=0.5\textwidth]{sketchN1.png}\includegraphics[width=0.5\textwidth]{N2.jpg}
-		\caption{\label{fig:Absorption}Absorption boundary, figure on the right show the geometry of absorbed boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
+		\caption{\label{fig:Absorption}Absorption boundary, figure on the right shows the geometry of absorbed boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
 	\end{figure}
 	\subsubsection{Error convergence}	
 	In order to assess the accuracy of the numerical method, error is calculated. Error is a difference between numerical and analytical electric field and can be calculated using different norms. There is fixed relation between number of grid point and total error, if one increases the number of grid points, error is expected to decrease. If number of grid points is increased $2^n$ times, error should decrease $2^{-n}$ times, $n$ is integer number which also tells about order of error convergence.
@@ -187,8 +186,60 @@
 	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However in order to keep physical domain same, computational domain should be increased.
 	
 	\newpage
-	\section*{Appendix A: ~~Implementation of Crank-Nicolson method}
-	\addcontentsline{toc}{section}{Appendix A: Implementation of Crank-Nicolson method}
+	
+	\section*{Appendix A: ~~Implementation of analytical method}
+	\addcontentsline{toc}{section}{Appendix A: Implementation of analytical method}
+	\texttt{\noindent
+		\textcolor{OliveGreen}{//INITIALIZATION\newline\newline
+			// x-coordinate which specifies our computational range in micrometers}.\newline
+		x0 = 400 \newline
+		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
+		x\_mesh = 1 \newline
+		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
+		x = from -x0 to x0 with step x\_mesh.\newline
+		\textcolor{OliveGreen}{// number of grid points in x-direction.}\newline
+		Nx = length(x)\newline
+		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
+		zend = 800 \newline
+		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
+		z\_mesh = x\_mesh \newline
+		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
+		z = from 0 to zend with step z\_mesh\newline
+		\textcolor{OliveGreen}{// number of grid points in z-direction.}\newline
+		Nz = length(z)\newline
+		\textcolor{OliveGreen}{// waist in micrometers.}\newline
+		wo = 30 \newline
+		\textcolor{OliveGreen}{// width in micrometers.}\newline
+		w = 0 \newline
+		\textcolor{OliveGreen}{// curvature in micrometers.}\newline
+		r = 0 \newline
+		\textcolor{OliveGreen}{// Gouy phase.}\newline
+		gouy\_phase = 0 \newline		
+		\textcolor{OliveGreen}{// wavelength in micrometers.}\newline
+		lambda = 10\newline
+		\textcolor{OliveGreen}{// Rayleigh length in micrometers.}\newline
+		zR = pi*wo\string^2/lambda;\newline
+		\textcolor{OliveGreen}{// refractive index of air in vacuum.}\newline
+		no = 1\newline
+		\textcolor{OliveGreen}{// spacial frequency with no.}\newline
+		ko = 2*pi*no/lambda\newline
+		\textcolor{OliveGreen}{// Electic field.}\newline
+		E = zeros(Nx,Nz)\newline
+		\textcolor{OliveGreen}{// Electic field amplitude.}\newline
+		Eo = 1\newline
+		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, spacial component of electric field, 2-dimensional grid.}\newpage
+		\noindent\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
+		\textcolor{OliveGreen}{// Electric field.}\newline
+		for i from 1 to Nz \newline
+		\indent w = wo*sqrt(1+(z(i)/zR).\string^2);\newline
+		\indent r = z(i)+(zR\string^2/z(i));\newline
+		\indent gouy\_phase = atan(z(i)/zR);\newline
+		\indent E(i\_colomn) = Eo*(wo/w)\string^0.5.*exp(-(x\string^2)/w\string^2) ...\newline \indent\indent\indent\indent\indent\indent\indent\indent*exp(1j*(k*z(i)+k*(x\string^2)/(2*r)-gouy\_phase))\newline
+		end for\newline\newline	
+	}\newpage
+	
+	\section*{Appendix B: ~~Implementation of Crank-Nicolson method}
+	\addcontentsline{toc}{section}{Appendix B: Implementation of Crank-Nicolson method}
 		\texttt{\noindent
 			\textcolor{OliveGreen}{// INITIALIZATION\newline\newline
 		// x-coordinate which specifies our computational range in micrometers.}\newline
@@ -255,58 +306,6 @@
 		\newpage
 
 	
-	\section*{Appendix B: ~~Implementation of analytical method}
-	\addcontentsline{toc}{section}{Appendix B: Implementation of analytical method}
-	\texttt{\noindent
-		\textcolor{OliveGreen}{//INITIALIZATION\newline\newline
-		// x-coordinate which specifies our computational range in micrometers}.\newline
-		x0 = 400 \newline
-		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
-		x\_mesh = 1 \newline
-		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
-		x = from -x0 to x0 with step x\_mesh.\newline
-		\textcolor{OliveGreen}{// number of grid points in x-direction.}\newline
-		Nx = length(x)\newline
-		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
-		zend = 800 \newline
-		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
-		z\_mesh = x\_mesh \newline
-		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
-		z = from 0 to zend with step z\_mesh\newline
-		\textcolor{OliveGreen}{// number of grid points in z-direction.}\newline
-		Nz = length(z)\newline
-		\textcolor{OliveGreen}{// waist in micrometers.}\newline
-		wo = 30 \newline
-		\textcolor{OliveGreen}{// width in micrometers.}\newline
-		w = 0 \newline
-		\textcolor{OliveGreen}{// curvature in micrometers.}\newline
-		r = 0 \newline
-		\textcolor{OliveGreen}{// Gouy phase.}\newline
-		gouy\_phase = 0 \newline		
-		\textcolor{OliveGreen}{// wavelength in micrometers.}\newline
-		lambda = 10\newline
-		\textcolor{OliveGreen}{// Rayleigh length in micrometers.}\newline
-		zR = pi*wo\string^2/lambda;\newline
-		\textcolor{OliveGreen}{// refractive index of air in vacuum.}\newline
-		no = 1\newline
-		\textcolor{OliveGreen}{// spacial frequency with no.}\newline
-		ko = 2*pi*no/lambda\newline
-		\textcolor{OliveGreen}{// Electic field.}\newline
-		E = zeros(Nx,Nz)\newline
-		\textcolor{OliveGreen}{// Electic field amplitude.}\newline
-		Eo = 1\newline
-		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, spacial component of electric field, 2-dimensional grid.}\newpage
-		\noindent\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
-		\textcolor{OliveGreen}{// Electric field.}\newline
-		for i from 1 to Nz \newline
-		\indent w = wo*sqrt(1+(z(i)/zR).\string^2);\newline
-		\indent r = z(i)+(zR\string^2/z(i));\newline
-		\indent gouy\_phase = atan(z(i)/zR);\newline
-		\indent E(i\_colomn) = Eo*(wo/w)\string^0.5.*exp(-(x\string^2)/w\string^2) ...\newline \indent\indent\indent\indent\indent\indent\indent\indent*exp(1j*(k*z(i)+k*(x\string^2)/(2*r)-gouy\_phase))\newline
-		end for\newline\newline	
-	}
-	
- 
 		
 \end{document}
 

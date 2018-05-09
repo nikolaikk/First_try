@@ -8,5 +8,5 @@
 \contentsline {subsection}{\numberline {2.2}X and Z direction meshsize relation}{7}
 \contentsline {subsection}{\numberline {2.3}Error convergence}{9}
 \contentsline {section}{\numberline {3}Conlusion}{11}
-\contentsline {section}{Appendix A: Implementation of Crank-Nicolson method}{12}
-\contentsline {section}{Appendix B: Implementation of analytical method}{14}
+\contentsline {section}{Appendix A: Implementation of analytical method}{12}
+\contentsline {section}{Appendix B: Implementation of Crank-Nicolson method}{14}

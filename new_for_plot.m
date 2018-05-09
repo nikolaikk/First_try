@@ -23,7 +23,7 @@ ylabel ('\kappa(x)','FontSize', 18);
 % title('Absorption Index','FontSize', 18);
 
 a = get(gca,'XTickLabel');
-set(gca,'XTickLabel',a,'FontName','Times','fontsize',40)
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',28)
 
 
 
