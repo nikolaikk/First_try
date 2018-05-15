@@ -16,22 +16,20 @@
 
 
 \begin{document}
-	
-	
+		
 	\pagenumbering{gobble}
 	\maketitle
 	\newpage
 	\tableofcontents	
 
 	\pagenumbering{arabic}
-%	\setlength\parindent{0pt}
 	
 	\newpage
 	\section{Introduction}
 	Beam propagation in media is of high interest for scientists and also for industrial purposes. 
 	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero incident angle, so to fit the scope of mini-project, later on can be extended for more sophisticated cases.
 	\subsection{Analytical solution}
-	To better analytically understand propagation of beam in space we should solve Helmholz Equation.
+	To better analytically understand propagation of beam in space we should solve Helmholtz Equation.
 	\begin{center}
 		$(\nabla^2+k^2)E = 0$		
 	\end{center}
@@ -51,7 +49,7 @@
 	\begin{equation}\label{eq:2}
 	E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)
 	\end{equation}
-	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution. From here intensity can be calculated, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$. Implementation of analytical solution can be found it Appendix A. 
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution. From here intensity can be calculated, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$ \cite{link1}. Implementation of analytical solution can be found it Appendix A. 
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
 %	\[R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]\]
@@ -106,17 +104,17 @@
 	
 	\noindent From here doing simple mathematical rearrangement we can write previous equation in the following form.
 		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
-	Here $I$ is identity matrix, which has the same size as tridiagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$. Implementation of numerical solution can be found in Appendix B
+	Here $I$ is identity matrix, which has the same size as tridiagonal matrix $L$. We can notice that this is iterative process, in our particular case we instantiate $u^{l=0}$ at $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$ \cite{pedrola2015beam, link2}. Implementation of numerical solution can be found in Appendix B.
 	
 	\subsubsection{Absorbing Boundary Condition}
-	Implementing numerical method, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
-	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg];\]
-	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg];\]
-	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of our computational domain, in our case will be corresponding to range of x, $\delta$ is a part of total width where absorption will be introduced, geometry of introduced absorption can be seen in Figure \ref{fig:Absorption}. It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}.
+	During numerical method implementation, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\in \bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg];\]
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\in \bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg];\]
+	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of our computational domain, in our case will be corresponding to range of x, $\delta$ is a part of total width where absorption takes place, geometry of introduced absorption can be seen in Figure \ref{fig:Absorption}. It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}\cite{pedrola2015beam}.
 	\begin{figure}[h!]
 		\centering 
 		\includegraphics[width=0.5\textwidth]{sketchN1.png}\includegraphics[width=0.5\textwidth]{N2.jpg}
-		\caption{\label{fig:Absorption}Absorption boundary, figure on the right shows the geometry of absorbed boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
+		\caption{\label{fig:Absorption}Absorption boundary, figure on the right shows the geometry of absorption boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
 	\end{figure}
 	\subsubsection{Error convergence}	
 	In order to assess the accuracy of the numerical method, error is calculated. Error is a difference between numerical and analytical electric field and can be calculated using different norms. There is fixed relation between number of grid point and total error, if one increases the number of grid points, error is expected to decrease. If number of grid points is increased $2^n$ times, error should decrease $2^{-n}$ times, $n$ is integer number which also tells about order of error convergence.
@@ -129,7 +127,7 @@
 	\]
 	\newpage
 	\section{Results}
-	Numerical algorithm and analytical solution were both implemented and compared, results can be seen in Figure \ref{fig:Results}. In first row depicts Crank-Nicolson numerical method, second row shows analytical solution, first and second columns show real component of electric field and intensity of light consequently. Parameters of laser beam in our case are: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 20 $\mu m$, waist ($w_o$) = 30 $\mu m$, refractive index ($n_o$) = 1.	
+	Numerical algorithm and analytical solution were both implemented and compared, results can be seen in Figure \ref{fig:Results}. First row depicts Crank-Nicolson numerical method, second row shows analytical solution, first and second columns show real component of electric field and intensity of light consequently. Parameters of laser beam in our case are: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 20 $\mu m$, waist ($w_o$) = 30 $\mu m$, refractive index ($n_o$) = 1.	
 	\begin{figure}[h!]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{N1.jpg}
@@ -137,7 +135,7 @@
 %		\centering
 	\end{figure}
 	\subsection{Absorption Boundary Condition}
-	In this section we show the results of applied ABC. In Figure \ref{fig:Absorption2} the necessity of applying ABC can be seen. In the figure on the left no ABC is applied, as result reflection occurs on the boundary on the top and bottom, because of reflection interference effect can be observed. In the figure on the right ABC is applied. Gradual absorption of electric wave can be observed, also wave doesn't reach the boundary.
+	In this section we show the results of applied ABC. In Figure \ref{fig:Absorption2} the necessity of applying ABC can be seen. In the figure on the left no ABC is applied, as result reflection occurs on the boundary on the top and bottom. Reflection causes interference effect, which can be observed. In the figure on the right ABC is applied. Gradual absorption of electric wave can be observed, also wave doesn't reach the boundary.
 	
 	\begin{figure}[h!]
 		\hspace{-30mm}
@@ -145,7 +143,7 @@
 		\caption{\label{fig:Absorption2}Propagation of electric field. On the left implementation of numerical method without ABC, on the right with ABC. Parameters used: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 10 $\mu m$, refractive index ($n_o$) = 1. For ABC simulation $\kappa_{max}$ = 0.0013, $\delta$ =  50 $\mu m$, $l$ = 200 $\mu m$.}
 	\end{figure}
 	\subsection{X and Z direction meshsize relation}
-	In this section we made a research on how x-meshsize and z-meshsize relation affect simulation. In Figure \ref{fig:Relation} change of z-meshsize changes the result of numerical approach. At the point where z-meshsize is equal to x-meshsize numerical method has the most similarity to analytical solution. As result, we can conclude that once one changes x-meshsize, z-meshsize should be changed too and furthermore z-meshsize should be equal to x-meshsize. In the Figure below parameters are: x-meshsize  = 0.5 $\mu m$ is kept constant, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = 1, 0.75, 0.5, 0.375, 0.25 $\mu m$.
+	In this section we made a research on how x-meshsize and z-meshsize relation affect simulation. In Figure \ref{fig:Relation} change of z-meshsize changes the result of numerical approach. At the point where z-meshsize is equal to x-meshsize numerical method has the best similarity to analytical solution. As result, we can conclude that once one changes x-meshsize, z-meshsize should be changed too and furthermore z-meshsize should be set to the sane value as x-meshsize. In the Figure below parameters are: x-meshsize  = 0.5 $\mu m$ is kept constant, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = 1, 0.75, 0.5, 0.375, 0.25 $\mu m$.
 %	
 	\begin{figure}[H]
 		\hspace{-22.5mm}
@@ -159,7 +157,7 @@
 	\end{figure}
 	
 	\subsection{Error convergence}
-	In this section error convergence is calculated as described in section 1.2.2, plots are presented in Figure \ref{fig:Error} and results in Table \ref{tab:Table2}. From table we see that if number of grid points increases twice, $L_{2}$ norm error decreases thrice , $L_{\infty}$ increases twice and so on. From Figure we see that of error has steady behavior in logarithmic scale. This convergence is reached at following parameters: wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = x-meshsize  = \{2, $\sqrt{2}$, 1, $0.5\sqrt{2}$, 0.5, $0.25\sqrt{2}$, 0.25\} $\mu m$.
+	In this section error convergence is calculated as described in section 1.2.2, plots are presented in Figure \ref{fig:Error} and results in Table \ref{tab:Table2}. From table we see that if number of grid points increases twice, $L_{2}$ norm error decreases thrice , $L_{\infty}$ decreases twice and so on. From Figure we see that of error has steady behavior in logarithmic scale. This convergence is reached at following parameters: wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = x-meshsize  = \{2, $\sqrt{2}$, 1, $0.5\sqrt{2}$, 0.5, $0.25\sqrt{2}$, 0.25\} $\mu m$.
 	\begin{figure}[H]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{error.jpg}
@@ -182,8 +180,13 @@
 	\end{table}
 	
 	\newpage
-	\section{Conlusion}
-	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However in order to keep physical domain same, computational domain should be increased.
+	\section{Conclusion}
+	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However the ABC used here has drawbasks, extension of the simulation for higher propagation distances introduces some reflections, their contribution increases as computational distance increases, in \cite{pedrola2015beam} another methods of ABC are described. Also in order to keep physical domain same, computational domain should be increased.
+	
+	\newpage
+	
+	\bibliographystyle{IEEEtran}
+	\bibliography{References}
 	
 	\newpage
 	
@@ -193,7 +196,7 @@
 		\textcolor{OliveGreen}{//INITIALIZATION\newline\newline
 			// x-coordinate which specifies our computational range in micrometers}.\newline
 		x0 = 400 \newline
-		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
+		\textcolor{OliveGreen}{// meshsize in x-direction in micrometers.}\newline
 		x\_mesh = 1 \newline
 		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
 		x = from -x0 to x0 with step x\_mesh.\newline
@@ -201,7 +204,7 @@
 		Nx = length(x)\newline
 		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
 		zend = 800 \newline
-		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
+		\textcolor{OliveGreen}{// meshsize in z-direction in micrometers.}\newline
 		z\_mesh = x\_mesh \newline
 		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
 		z = from 0 to zend with step z\_mesh\newline
@@ -223,9 +226,9 @@
 		no = 1\newline
 		\textcolor{OliveGreen}{// spacial frequency with no.}\newline
 		ko = 2*pi*no/lambda\newline
-		\textcolor{OliveGreen}{// Electic field.}\newline
+		\textcolor{OliveGreen}{// Electric field.}\newline
 		E = zeros(Nx,Nz)\newline
-		\textcolor{OliveGreen}{// Electic field amplitude.}\newline
+		\textcolor{OliveGreen}{// Electric field amplitude.}\newline
 		Eo = 1\newline
 		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nz size, spacial component of electric field, 2-dimensional grid.}\newpage
 		\noindent\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
@@ -244,7 +247,7 @@
 			\textcolor{OliveGreen}{// INITIALIZATION\newline\newline
 		// x-coordinate which specifies our computational range in micrometers.}\newline
 		x0 = 400 \newline
-		\textcolor{OliveGreen}{// meshsize in x-deirection in micrometers.}\newline
+		\textcolor{OliveGreen}{// meshsize in x-direction in micrometers.}\newline
 		x\_mesh = 1 \newline
 		\textcolor{OliveGreen}{// vector which contains x values in micrometers from -x0 to x0 with step x\_mesh.}\newline
 		x = from -x0 to x0 with step x\_mesh.\newline
@@ -252,7 +255,7 @@
 		Nx = length(x)\newline\newline
 		\textcolor{OliveGreen}{// z-coordinate which specifies our computational range in micrometers.}\newline
 		zend = 800 \newline
-		\textcolor{OliveGreen}{// meshsize in z-deirection in micrometers.}\newline
+		\textcolor{OliveGreen}{// meshsize in z-direction in micrometers.}\newline
 		z\_mesh = x\_mesh \newline
 		\textcolor{OliveGreen}{// vector which contains z values in micrometers from 0 to zend with step z\_mesh.}\newline
 		z = from 0 to zend with step z\_mesh\newline
@@ -280,7 +283,7 @@
 		L = zeros(Nx,Nx)\newline
 		\textcolor{OliveGreen}{// 2 dimensional matrix with Nx*Nx size, identity matrix used in Thomas algorithm.}\newline
 		I = eye(Nx,Nx)\newline\newline
-		\textcolor{OliveGreen}{// set first colomn of u to gaussian.}\newline
+		\textcolor{OliveGreen}{// set first column of u to gaussian.}\newline
 		u(first\_colomn) = exp(-(x/wo)\string^2)\newline\newline
 		\textcolor{OliveGreen}{// CORE ALGORITHM}\newline\newline
 		\textcolor{OliveGreen}{// L matrix computation.}\newline
@@ -292,13 +295,13 @@
 		\indent end if\newline
 		end for\newline\newline	
 		\textcolor{OliveGreen}{// Spacial component of electric field computation.}\newline
-		for i\_colomn from 2 to Nz\newline
-		\indent u(i\_colomn) = MatrixInverse(I-x\_mesh*L/(4*1j*ko))*...\newline
-		\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent(E+x\_mesh*L/(4*1j*ko)))*u(i\_colomn-1)\newline
+		for i\_column from 2 to Nz\newline
+		\indent u(i\_column) = MatrixInverse(I-x\_mesh*L/(4*1j*ko))*...\newline
+		\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent(E+x\_mesh*L/(4*1j*ko)))*u(i\_column-1)\newline
 		end for\newline\newline
 		\textcolor{OliveGreen}{// Periodic component of electric field in z direction computation.}\newline
-		for i\_colomn from 1 to Nz\newline
-		\indent f(i\_colomn) = exp(-1j*ko*z(i\_colomn))\newline
+		for i\_column from 1 to Nz\newline
+		\indent f(i\_column) = exp(-1j*ko*z(i\_column))\newline
 		end for\newline\newline
 		\textcolor{OliveGreen}{// Complete Electric field.}\newline
 		E = Elementwise\_multiplication(u,f)\newline\newline

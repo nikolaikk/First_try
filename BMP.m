@@ -1,4 +1,4 @@
-% clear
+clear
 %%              Beam Propagaton Method
     
 %%              Initialization
@@ -8,7 +8,7 @@ c = 299792458;
 
 zo = 0;                     % micrometer
 zend = 600;                % micrometer
-z_mesh = 1;                 % micrometer
+z_mesh = 20;                 % micrometer
 ratio = 1;
 xo = -400;                  % micrometer
 xend = -xo;                 % micrometer
@@ -44,21 +44,25 @@ if part_of_program  == 0
     to = 0.5;
     range_z = from:-step:to;
 %     range_z = [4,2];
-    range_z = [2,1*sqrt(2),1,sqrt(2)*0.5,0.5,0.25*sqrt(2),0.25];
+%     range_z = [2,1*sqrt(2),1,sqrt(2)*0.5,0.5,0.25*sqrt(2),0.25];
+    range_z = 1.6:-0.05:0.4;
+%     range_z = [1.5,1,0.75,0.5,];
 %     range_z = [1,0.75,0.5,0.375,0.25];
 
 
     % Video
     if record_status == 1
-        vid = VideoWriter(movie_name);
-        vid.FrameRate = 6;
-        vid.open()
+%         vid = VideoWriter(movie_name);
+%         vid.FrameRate = 6;
+%         vid.open()
+
+        h = figure;
+        set(h,'color','w');
     end
 %     
     for i_z_mesh = range_z
-        disp(i_z_mesh)
 
-        x_mesh = range_z(ii);      % micrometer
+        x_mesh = 1;      % micrometer
         
         [Ez,x,z] = solve_BPM(zo, zend, i_z_mesh, xo, xend, x_mesh, Lambda, wo, no);
 
@@ -103,33 +107,59 @@ if part_of_program  == 0
         
         % Record
         if record_status == 1
-%             imshow(imresize(I,[800,1600]))
-            Ez_diff(xp_coord,zp_coord)=0.0001;
-            contour((imresize(Ez_diff,[800,1600])),25),hold on
-            scatter(zp*1600,xp*800),hold off;
-            colorbar, set(gcf,'Position',[0,0,800,1600]);
-            vid.writeVideo(getframe(gca));
+%             Ez_diff(xp_coord,zp_coord)=0.0001;
+            [Z, X] = meshgrid(z,x);
+            ddx =1200,ddy =1200;
+            subplot(1,2,1)
+            plot_mesh_function(imresize(Z,[ddx,ddy]),imresize(X,[ddx,ddy]),...
+                (abs(real(imresize(Ez,[ddx,ddy])))),'z (\mum)','x (\mum)',...
+                'Real Part Electric Field',{'\Ree(E_{z}) Crank–Nicolson BPM',...
+                strcat('z\_mesh = ', num2str(i_z_mesh),'(\mum), x\_mesh = ',...
+                num2str(x_mesh),'(\mum), ratio_{z\_mesh/x\_mesh} =',num2str(i_z_mesh/x_mesh))})
+            subplot(1,2,2)
+            plot_mesh_function(imresize(Z,[ddx,ddy]),imresize(X,[ddx,ddy]),...
+                (abs(real(imresize(Ez_analytic,[ddx,ddy])))),'z (\mum)','x (\mum)',...
+                'Real Part Electric Field','\Ree(E_{z}) Analytic Gaussian Beam')
+            hold on
+%             scatter(zp*1600,xp*800),hold off;
+            colorbar, set(gcf,'Position',[0,0,1600,700]);
+            frame = getframe(h);
+            im = frame2im(frame);
+            [imind,cm] = rgb2ind(im,256);
+            if i_z_mesh == range_z(1) 
+              imwrite(imind,cm,'test.gif','gif', 'Loopcount',inf); 
+            else 
+              imwrite(imind,cm,'test.gif','gif','WriteMode','append')
+            end
+            
+
+
+            
+            
+%             vid.writeVideo(getframe(gca));
         end
     end
     
     % Record
     if record_status == 1
-        vid.close()
+%         vid.close()
     end
     toc
 
     fig = figure,set(fig,'Position',[0,0,1500,500]);
     
     Linewidth= 3;
-    subplot(1,3,1),hold on, plot(Number_Nz_Nx,err_l2,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_l2,'*k','Linewidth',Linewidth),hold off;
+    subplot(1,3,1),hold on, plot(Number_Nz_Nx,err_l2,'-b','Linewidth',Linewidth)
+    plot(Number_Nz_Nx,err_l2,'*k','Linewidth',Linewidth),hold off;
     title('L_{2} norm error','FontSize', 18)
     xlabel('Number of grid points','FontSize', 18),
     ylabel('Error','FontSize', 18);
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
     a = get(gca,'XTickLabel');
     set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
-   Audit
-    subplot(1,3,2), hold on, plot(Number_Nz_Nx,err_max,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_max,'*k','Linewidth',Linewidth),hold off;
+   
+    subplot(1,3,2), hold on, plot(Number_Nz_Nx,err_max,'-b','Linewidth',Linewidth)
+    plot(Number_Nz_Nx,err_max,'*k','Linewidth',Linewidth),hold off;
     title('L_{\infty} norm error','FontSize', 18);
     xlabel('Number of grid points','FontSize', 18),
     ylabel('Error','FontSize', 18);
@@ -137,9 +167,10 @@ if part_of_program  == 0
     a = get(gca,'XTickLabel');
     set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
     
-    subplot(1,3,3), hold on, plot(Number_Nz_Nx,err_point,'-b','Linewidth',Linewidth),plot(Number_Nz_Nx,err_point,'*k','Linewidth',Linewidth),hold off;
-    title({'Error at a particular physical point ',strcat('( x=',num2str(xp*(xend-xo)-xend),'\mum, z=',...
-        num2str(zp*zend),'\mum)')},'FontSize', 18)
+    subplot(1,3,3), hold on, plot(Number_Nz_Nx,err_point,'-b','Linewidth',Linewidth)
+    plot(Number_Nz_Nx,err_point,'*k','Linewidth',Linewidth),hold off;
+    title({'Error at a particular physical point ',strcat('( x=',num2str(xp*(xend-xo)-xend),...
+        '\mum, z=', num2str(zp*zend),'\mum)')},'FontSize', 18)
     xlabel('Number of grid points','FontSize', 18),
     ylabel('Error','FontSize', 18);
     set(gca, 'XScale', 'log'),set(gca, 'YScale', 'log')
@@ -149,21 +180,21 @@ if part_of_program  == 0
     
     
     
-    % Show error and zrange    
-    fprintf(strcat('delta_z values  :   ',num2str(range_z),'\n'))
-%     fprintf(strcat('L2 normed error values  :   ',num2str(err_l2),'\n'))
-    fprintf(strcat('Number of grid points devided by max  :   ',...
-        num2str(Number_Nz_Nx/Number_Nz_Nx(1)),'   so increases x',...
-        num2str(round(Number_Nz_Nx(2)/Number_Nz_Nx(1))),'\n'))
-    fprintf(strcat('L2 normed error values devided by max  :   ',...
-        num2str(err_l2/err_l2(1)),'   error decreases x',...
-        num2str(round(err_l2(1)/err_l2(2))),'\n'))
-    fprintf(strcat('Lmax normed error values devided by max  :   ',...
-        num2str(err_max/err_max(1)),'   error decreases x',...
-        num2str(round(err_max(1)/err_max(2))),'\n'))
-    fprintf(strcat('Error at certain point devided by max  :   ',...
-        num2str(err_point/err_point(1)),'   error decreases x',...
-        num2str(round(err_point(1)/err_point(2))),'\n'))    
+%     % Show error and zrange    
+%     fprintf(strcat('delta_z values  :   ',num2str(range_z),'\n'))
+% %     fprintf(strcat('L2 normed error values  :   ',num2str(err_l2),'\n'))
+%     fprintf(strcat('Number of grid points devided by max  :   ',...
+%         num2str(Number_Nz_Nx/Number_Nz_Nx(1)),'   so increases x',...
+%         num2str(round(Number_Nz_Nx(2)/Number_Nz_Nx(1))),'\n'))
+%     fprintf(strcat('L2 normed error values devided by max  :   ',...
+%         num2str(err_l2/err_l2(1)),'   error decreases x',...
+%         num2str(round(err_l2(1)/err_l2(2))),'\n'))
+%     fprintf(strcat('Lmax normed error values devided by max  :   ',...
+%         num2str(err_max/err_max(1)),'   error decreases x',...
+%         num2str(round(err_max(1)/err_max(2))),'\n'))
+%     fprintf(strcat('Error at certain point devided by max  :   ',...
+%         num2str(err_point/err_point(1)),'   error decreases x',...
+%         num2str(round(err_point(1)/err_point(2))),'\n'))    
     
     % Plot 2
     
@@ -234,9 +265,9 @@ f(:,1) = exp(-(x/wo).^2);
 f(1,1) = 0;
 f(end,1) = 0;
 
-%%              Absorbtion rigion
-rigion = 1/2;
-k_grad = ((min(x)+max(x)*rigion-x(1:round(length(x)*rigion/2)))*rigion/2).^2;
+%%              Absorbtion region
+region = 1/2;
+k_grad = ((min(x)+max(x)*region-x(1:round(length(x)*region/2)))*region/2).^2;
 k_abs = zeros(1,length(x));
 k_abs(1:length(k_grad))= k_grad;
 k_abs(end-length(k_grad)+1:end) = flip(k_grad);
@@ -270,8 +301,8 @@ f(end,i+1) = 0;
 
 end
     
-extra = repmat(exp(-1j*ko*z),size(f,1),1);
-f = f.*extra;
+periodic = repmat(exp(-1j*ko*z),size(f,1),1);
+f = f.*periodic;
 end
 
 function plot_mesh_function(X,Y,F,x_label,y_label,z_label,plot_title)
