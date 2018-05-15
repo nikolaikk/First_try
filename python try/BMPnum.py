@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import time
+import scipy as sp
 
 
 t = time.time()
@@ -45,7 +46,6 @@ f[-1,0] = 0
 L = np.zeros([Nx,Nx])
 for i in range(Nx):
     L[i,i]=-2+(ko**2-k[i]**2)*x_mesh**2    # in free space^2 - in material^2
-    print(L[i,i])
 
 for i in range(1,Nx):
     L[i,i-1]=1;
@@ -56,12 +56,16 @@ L = (1/x_mesh**2)*L
 ## Psi evolution
 
 E = np.eye(Nx)
-const_to_simplify = (np.linalg.pinv(E-x_mesh*L/(4*1j*ko))*(E+x_mesh*L/(4*1j*ko)))
+#const_to_simplify = (E+x_mesh*L/(4*1j*ko))/(E-x_mesh*L/(4*1j*ko))
+L_l = L/(4*1j*ko)
+const_to_simplify = np.dot((E+x_mesh*L_l),np.linalg.inv(E-x_mesh*L_l))
+L_lmat = sp.io.loadmat('L_l.mat')['L_l']
+const_to_simplify1 = sp.io.loadmat('const_to_simplify.mat')['const_to_simplify']
+
 #const_to_simplify(find(const_to_simplify<1e-14))=0
 
 for i in range(Nz-1):
-    f[:,i+1]= np.matmul(const_to_simplify,f[:,i])
-
+    f[:,i+1]= np.dot(const_to_simplify,f[:,i])
     f[0,i+1] = 0
     f[-1,i+1] = 0
 
@@ -81,6 +85,7 @@ Z, X = np.meshgrid(z, x)
 
 
 plt.contourf(Z, X, np.real(f),20, cmap='jet')
+plt.colorbar
 plt.show()
 
 

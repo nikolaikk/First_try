@@ -1,20 +1,5 @@
 function Output = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, wo, no, bla)
-% % % zo = 0;
-% % % zend = 800;    % micrometer
-% % % z_mesh = 1;    % micrometer
-% % % z = zo:z_mesh:zend-z_mesh;
-% % % Nz = length(z);
-% % % ratio = 1;
-% % % 
-% % % Lambda = 0.6;   % micrometer
-% % % no = 1;
-% % % 
-% % % xo = -200; %mvim
-% % % xend = -xo; %m
-% % % x_mesh = z_mesh/ratio;
-% % % x = xo:x_mesh:xend-x_mesh;
-% % % Nx = length(x);
-% % % wo = 10; % micrometer
+    % help for this method
 
     x = xo:x_mesh:xend-x_mesh;
     z = zo:z_mesh:zend-z_mesh;
@@ -76,15 +61,4 @@ function Output = function_BMP_FFT(zo, zend, z_mesh, xo, xend, x_mesh, Lambda, w
         colorbar;
     end
     
-% % %     [Z, X] = meshgrid(z,x);
-% % %     figure
-% % %     surf(Z,X,Output)
-% % %     shading flat
-% % %     xlabel ('z (\mum)');
-% % %     ylabel ('x (\mum)');
-% % %     zlabel Intensity;
-% % %     rotate3d on
-% % %     view([0,90])
-% % % 
-% % %     % imshow(imbinarize(Output,edge))
 end
