@@ -1,6 +1,6 @@
 clear
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                       BEAM PROPAGATION METHOD
+%%%                       BEAM PROPAGATION METHOD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%                      Initialization
@@ -26,7 +26,7 @@ z = zo:z_mesh:zend-z_mesh;
 %%                      Start calculation
 % part_of_program 0 runs convergence, 1 plots the Gaussian Beam
 part_of_program = 0;
-% part_of_program = 1;
+part_of_program = 1;
 
 % record_status 1 saves covergence as gif, 0 does not
 record_status = 0;
@@ -137,7 +137,7 @@ if part_of_program  == 0
 
 else
     % uses solve_BPM and function_analytic_BMP functions
-    [Ez, L, L_l, const_to_simplify] = solve_BPM(z, x, Lambda, wo, no);
+    [Ez, L, const_to_simplify] = solve_BPM(z, x, Lambda, wo, no);
     Ez_analytic = function_analytic_BMP(z, x, Lambda, wo, no);
     
     % solves corresponding intensity

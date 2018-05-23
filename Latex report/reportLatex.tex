@@ -27,29 +27,29 @@
 	\newpage
 	\section{Introduction}
 	Beam propagation in media is of high interest for scientists and also for industrial purposes. 
-	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero incident angle, so to fit the scope of mini-project, later on can be extended for more sophisticated cases.
+	In this report beam propagation will be simulated, problems will be discussed. The purpose of the project is to compare numerical method and analytical solution. Convergence of used numerical method is to be shown. For the simplicity simulation of beam propagation is done in free space, linear medium, at zero angle of incidence, so to fit the scope of mini-project, later on can be extended to more sophisticated cases.
 	\subsection{Analytical solution}
-	To better analytically understand propagation of beam in space one should solve Helmholtz Equation.
+	To get better analytical understanding of beam propagation in space one should solve Helmholtz Equation
 	\begin{center}
-		$(\nabla^2+k^2)E = 0$		
+		$(\nabla^2+k^2)E = 0$.
 	\end{center}
-	This equation generally holds for electromagnetic wave, hence for electric and magnetic field components, for simplicity electric field $E$ is chosen. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of the medium (here it is assumed to be equal to 1). As assumption, propagation of the wave in $z$ direction can be considered, electric field can be represented in next form.
+	This equation generally holds for electromagnetic wave, hence for electric and magnetic field components, for simplicity electric field $E$ is chosen. Here $k$ is wave number and is equal to $2\pi n/\lambda$, where $\lambda$ is wavelength, $n$ is refractive index of the medium (here it is assumed to be equal to 1). As assumption, propagation of the wave in $z$ direction can be considered, electric field can be represented in next form
 	\begin{center}
-		$E(x,y,z)=u(x,y,z)e^{-ik_oz}$
+		$E(x,y,z)=u(x,y,z)e^{-ik_oz}$,
 	\end{center}
-	$u$ is complex function which describes non-plane part of the beam. Substitution of the ansatz into Helmholtz equation in cartesian coordinates and some simplifications give.
+	where  $u$ is complex function which describes non-plane part of the beam. Substitution of the ansatz into Helmholtz equation in cartesian coordinates and some simplifications give
 
-	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0\]
-	Using paraxial approximation it is easy see that third term is smaller than others, therefore can be neglected, as result following equation is obtained.
+	\[\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2}+ \frac{\partial^2 u}{\partial z^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0.\]
+	Using paraxial approximation it is easy to see that third term is smaller than others, therefore can be neglected, as result following equation is obtained.
 	
 	\begin{equation}\label{eq:1}
-	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0
+	\frac{\partial^2 u}{\partial x^2}+ \frac{\partial^2 u}{\partial y^2} - 2ik_o\frac{\partial u}{\partial z}+(k^2-k_o^2)u=0.
 	\end{equation}
 	Solving this differential equation $u$ is found, hence $E$ can be found as well. It is assumed that $k = k_o$, solution for two dimensional case where wave propagates in z-direction and oscillates in xz plane becomes
 	\begin{equation}\label{eq:2}
-	E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg)
+	E(x,z)=E_o\bigg(\frac{w_o}{w(z)}\bigg)^{\frac{1}{2}}exp\bigg(\frac{x^2}{w(z)^2}\bigg)exp\bigg(-i\Big(k_oz+k_o\frac{x^2}{2R(z)}-\phi(z)\Big)\bigg),
 	\end{equation}
-	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical formula can be found in the Table \ref{tab:Table1}. This electric field formula will be later used as reference to numerical solution. From here intensity can be calculated, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$ \cite{link1}. Implementation of analytical solution can be found it Appendix A. 
+	where $w(z)$ is beam radius, $w_o = w(0)$ is beam waist, $E_o$ is electric field amplitude, $R(z)$ is beam curvature, $\phi$ is Gouy phase. Their explicit mathematical meanings can be found in the Table \ref{tab:Table1}. This electric field formula later will be compared to numerical solution. From here intensity can be calculated, $I = \frac{\epsilon _o c n_o}{2}|E_z|^2$ \cite{link1}. Implementation of analytical solution can be found in Appendix A. 
 	
 %	\[w(z)= w_o\sqrt{1+\Big(\frac{z\lambda}{\pi w_o^2}\Big)^2}\]
 %	\[R=z\bigg[1+\Big(\frac{\pi w_o^2}{z\lambda}\Big)^2\bigg]\]
@@ -68,18 +68,18 @@
 	\end{table}
 	
 	\subsection{Numerical solution}
-	For one dimensional case Equation \ref{eq:1} can be rewritten in the following form.
+	For one dimensional case Equation \ref{eq:1} can be rewritten in the following form
 	\begin{equation}\label{eq:3}
-	2ik_o\frac{\partial u}{\partial z}=\frac{\partial^2 u}{\partial x^2}+(k^2-k_o^2)u
+	2ik_o\frac{\partial u}{\partial z}=\frac{\partial^2 u}{\partial x^2}+(k^2-k_o^2)u.
 	\end{equation}
-	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is a discretization of formula (\ref{eq:3}), formula should be discretized for z-component and x-component. For beginning let's do discretization only for z component, equation will get following form.
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\]
-	Index $l$ denotes the order of grid points in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\]
-	Neither this scheme shows good stability, however the combination of these two solves instability problem. These method is called {\bf Crank-Nicolson} method.
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=(1-\alpha)\frac{\partial^2 u^l}{\partial x^2}+(1-\alpha)(k^2-k_o^2)u^l+\alpha \frac{\partial^2 u^{l+1}}{\partial x^2}+\alpha(k^2-k_o^2)u^{l+1}\]
-	$\alpha$ here shows contribution of the particular difference, usually is set to 1/2. Then Crank-Nicolson scheme gets next form.
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\bigg)+\frac{1}{2}\bigg(\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\bigg)\]
+	To simulate light beam propagation Beam Propagation Method (BPM) is used. BMP is a discretization of differential equation (\ref{eq:3}), equation should be discretized for z-component and x-component. For beginning let's do discretization only for z component, equation will get following form.
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l.\]
+	Superscipt $l$ denotes the order of grid points in z-direction. This finite difference scheme is known as {\bf forward difference}. However after discretization of x-component numerical instability can be seen. There is another alternative where order of grid point is taken one step in advance, this method is called {\bf backward difference}
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}.\]
+	Neither this scheme shows good stability, however the combination of these two solves instability problem. These method is called {\bf Crank-Nicolson} method
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=(1-\alpha)\frac{\partial^2 u^l}{\partial x^2}+(1-\alpha)(k^2-k_o^2)u^l+\alpha \frac{\partial^2 u^{l+1}}{\partial x^2}+\alpha(k^2-k_o^2)u^{l+1},\]
+	$\alpha$ here shows contribution of the particular difference. Usually $\alpha$  is set to 1/2, which means that forward and backward difference contribute equally. Then Crank-Nicolson scheme gets next form
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(\frac{\partial^2 u^l}{\partial x^2}+(k^2-k_o^2)u^l\bigg)+\frac{1}{2}\bigg(\frac{\partial^2 u^{l+1}}{\partial x^2}+(k^2-k_o^2)u^{l+1}\bigg).\]
 	Now discretization of x-component can be performed.
 
 	\begin{equation*}
@@ -88,28 +88,28 @@
 	& \frac{1}{2}\bigg(\frac{u_{j-1}^{l+1}-2u_j^{l+1}+u_{j+1}^{l+1}}{\Delta x^2}+(k^2-k_o^2)u_j^{l+1}\bigg)
 	\end{split}
 	\end{equation*}
-	$j$ index denotes the order of grid points in x-direction. Such discretization can be rewritten and later solved using tridiagonal matrix algorithm or so called {\bf Thomas algorithm}. 
-	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l}+L_hu^{l+1}\bigg)\]
+	$j$ subscript denotes the order of grid points in x-direction. Such discretization can be rewritten and later solved using tridiagonal matrix algorithm or so called {\bf Thomas algorithm}
+	\[2ik_o\frac{u^{l+1}-u^l}{\Delta z}=\frac{1}{2}\bigg(L_hu^{l}+L_hu^{l+1}\bigg).\]
 	$L_h$ is spacial discretization operator for one dimensional case and is numerically defined in Thomas algorithm as 
 
 	\setlength\arraycolsep{-4.5pt}
-	\[ L = \frac{1}{\Delta x^2}\begin{bmatrix}
+	\[ L _h= \frac{1}{\Delta x^2}\begin{bmatrix}
     -2+(k^2-k_o^2)\Delta x^2& 1& 0& &\dots& & 0 \\
     1 & -2+(k^2-k_o^2)\Delta x^2 & 1& &\dots& & 0 \\
     0 &     1& -2+(k^2-k_o^2)\Delta x^2 & & & & 0 \\
     \vdots & \vdots & \vdots & &\dots& & \vdots \\
     0& 0& 0& && &     -2+(k^2-k_o^2)\Delta x^2
-	\end{bmatrix}\]
+	\end{bmatrix}.\]
 	
 	
-	\noindent From here doing simple mathematical rearrangement previous equation can be written in the following form.
-		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l\]
-	Here $I$ is identity matrix, which has the same size as tridiagonal matrix $L$. Notice that this is iterative process, in particular case is instantiated at $u^{l=0}$ at $z = 0$ with Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$ \cite{pedrola2015beam, link2}. Implementation of numerical solution can be found in Appendix B.
+	\noindent After trivial simple mathematical rearrangement previous equation can be written in the following form
+		\[u^{l+1} = \bigg(I-\frac{\Delta z}{4ik_o}L_h\bigg)^{-1}\bigg(I+\frac{\Delta z}{4ik_o}L_h\bigg) u^l.\]
+	Here $I$ is identity matrix, which has the same size as tridiagonal matrix $L$. Notice that this is iterative process, in particular case is initialized at $u^{l=0}$ or $z = 0$ to Gaussian function, in another words $u(x,z=0)= E_oexp\big(-\frac{x^2}{w_o^2}\big)$ \cite{pedrola2015beam, link2}. Implementation of numerical solution can be found in Appendix B.
 	
 	\subsubsection{Absorbing Boundary Condition}
-	During numerical method implementation, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as insertion of mirror at the boundary. Reflection at the boundaries can be prevented introducing absorption, such method is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should increase gradually slowly, fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way.
-	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\in \bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg];\]
-	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\in \bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg];\]
+	During numerical method implementation, wave approaching boundary will be reflected, this happens due to the nature of numerical algorithm. Physically this can be interpreted as a presence of mirror at the boundary. Reflection at the boundaries can be decreased or completely prevented applying grid truncation techniques. One of the most popular grid truncation techniques is introduction of absorption, such technique is called absorbing boundary condition(ABC). One such way is to add a complex part to refractive index, refractive index becomes $\tilde{n} = n+i\kappa$. $\kappa$  is absorption index, it should vary gradually, slowly, since fast increase can again cause reflection. Absorption index is designed to have parabolic increase and can be expressed in following way
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{x-l/2+\delta}{\delta}\bigg)^2, x\in \bigg[\frac{l}{2},\frac{l}{2}-\delta\bigg],\]
+	\[\kappa(x)=\kappa_{max}\bigg(\frac{l/2+\delta-x}{\delta}\bigg)^2, x\in \bigg[-\frac{l}{2}+\delta,-\frac{l}{2}\bigg].\]
 	Here, $\kappa_{max}$ is maximum value of absorption index to which absorption index as function of x can increase, $l$ is the width of computational domain, in examined case will be corresponded to range of x, $\delta$ is a part of total width where absorption takes place, geometry of introduced absorption can be seen in Figure \ref{fig:Absorption}. It is important to notice that ABC do not change along z-direction. The function $\kappa (x)$ is show in Figure \ref{fig:Absorption}\cite{pedrola2015beam}.
 	\begin{figure}[h!]
 		\centering 
@@ -117,7 +117,7 @@
 		\caption{\label{fig:Absorption}Absorption boundary, figure on the right shows the geometry of absorption boundary, appropriate $\delta$ can be chosen during simulation time, figure on the left shows function absorption index $\kappa$ $ (x) $ and its change along x-direction.}
 	\end{figure}
 	\subsubsection{Error convergence}	
-	In order to assess the accuracy of the numerical method, error is calculated. Error is a difference between numerical and analytical electric field and can be calculated using different norms. There is fixed relation between number of grid point and total error, if one increases the number of grid points, error is expected to decrease. If number of grid points is increased $2^n$ times, error should decrease $2^{-n}$ times, $n$ is integer number which also tells about order of error convergence.
+	In order to assess the accuracy of the numerical method, error is calculated. Error is a difference between numerical and analytical electric field and can be calculated using different norms. There is a fixed relation between number of grid points and total error, if one increases the number of grid points, error is expected to decrease. If number of grid points is increased $2^n$ times, error should increase $2^{-n}$ times, $n$ is integer number which also tells about order of error convergence.
 	\[||Error||_2 = \frac{1}{\text{{\it Number of grid points}}}\sqrt{\sum\limits_{i=1}^n (E_{\text{\it z numerical}}-E_{\text{\it z analytic}})^2 }
 	\]
 	\[
@@ -131,7 +131,7 @@
 	\begin{figure}[h!]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{N1.jpg}
-		\caption{\label{fig:Results}Comparison of two methods.}
+		\caption{\label{fig:Results}Comparison of Crank-Nicolson BPM and analytical solution.}
 %		\centering
 	\end{figure}
 	\subsection{Absorption Boundary Condition}
@@ -143,7 +143,7 @@
 		\caption{\label{fig:Absorption2}Propagation of electric field. On the left implementation of numerical method without ABC, on the right with ABC. Parameters used: z-meshsize = x-meshsize  = 1 $\mu m$, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 10 $\mu m$, refractive index ($n_o$) = 1. For ABC simulation $\kappa_{max}$ = 0.0013, $\delta$ =  50 $\mu m$, $l$ = 200 $\mu m$.}
 	\end{figure}
 	\subsection{X and Z direction meshsize relation}
-	In this section a research on how x-meshsize and z-meshsize relation affect simulation is made. In Figure \ref{fig:Relation} change of z-meshsize changes the result of numerical approach. At the point where z-meshsize is equal to x-meshsize numerical method has the best similarity to analytical solution. As result, one can conclude that once x-meshsize changes, z-meshsize should be changed too and furthermore z-meshsize should be set to the same value as x-meshsize. In the Figure below parameters are: x-meshsize  = 0.5 $\mu m$ is kept constant, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = 1, 0.75, 0.5, 0.375, 0.25 $\mu m$.
+	In this section research on how x-meshsize and z-meshsize relation affects simulation is made. In Figure \ref{fig:Relation} change of z-meshsize changes the result of numerical approach. At the point where z-meshsize is equal to x-meshsize numerical method has the best similarity to analytical solution. As result, one can conclude that once x-meshsize changes, z-meshsize should be changed too and furthermore z-meshsize should be set to the same value as x-meshsize. In the Figure below parameters are: x-meshsize  = 0.5 $\mu m$ is kept constant, wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = 1, 0.75, 0.5, 0.375, 0.25 $\mu m$.
 %	
 	\begin{figure}[H]
 		\hspace{-22.5mm}
@@ -157,7 +157,7 @@
 	\end{figure}
 	
 	\subsection{Error convergence}
-	In this section error convergence is calculated as described in section 1.2.2, plots are presented in Figure \ref{fig:Error} and results in Table \ref{tab:Table2}. From table it is seen that if number of grid points increases twice, $L_{2}$ norm error decreases thrice , $L_{\infty}$ decreases twice and so on. Also figure shows that error has steady behavior in logarithmic scale. This convergence is reached at following parameters: wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = x-meshsize  = \{2, $\sqrt{2}$, 1, $0.5\sqrt{2}$, 0.5, $0.25\sqrt{2}$, 0.25\} $\mu m$.
+	In this section error convergence is calculated as described in section 1.2.2, plots are presented in Figure \ref{fig:Error} and results in Table \ref{tab:Table2}. From the table it is seen that if number of grid points increases twice, $L_{2}$ norm error decreases thrice , $L_{\infty}$ decreases twice and so on. Also figure shows that error has steady behavior in logarithmic scale. This convergence is reached at following parameters: wavelength ($\lambda$) = 10 $\mu m$, waist ($w_o$) = 25 $\mu m$, refractive index ($n_o$) = 1, z-meshsize = x-meshsize  = \{2, $\sqrt{2}$, 1, $0.5\sqrt{2}$, 0.5, $0.25\sqrt{2}$, 0.25\} $\mu m$.
 	\begin{figure}[H]
 		\hspace{-30mm}
 		\includegraphics[width=1.5\textwidth]{error.jpg}
@@ -176,12 +176,12 @@
 			\textbf{Error at a point}& 1 & 0.5410 & 0.2874 & 0.1457 & 0.0745 & 0.0393 & 0.0188& decrease \bf{2x}\\
 			
 		\end{tabular}
-		\caption{\label{tab:Table2}An example table.}
+		\caption{\label{tab:Table2}Dependence of error change on number of grid points}
 	\end{table}
 	
 	\newpage
 	\section{Conclusion}
-	In this report Crank-Nicolson algorithm to simulate Gaussian beam propagation is shown. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However the ABC used here has drawbasks, extension of the simulation for higher propagation distances introduces some reflections, their contribution increases as computational distance increases, in \cite{pedrola2015beam} another methods of ABC are described. Also in order to keep physical domain same, computational domain should be increased.
+	In this report Crank-Nicolson algorithm for BPM is used to simulate Gaussian beam propagation. Results show high resemblance between analytic solution and beam propagation method. In the case when beam propagates in the direction of upper or lower boundary, absorption boundary condition method should be used to compensate the reflection. However the ABC used here has drawbacks, extension of simulated propagation distance introduces reflections and hence interference effects. Their contribution increases as computational distance increases, in \cite{pedrola2015beam} another methods of ABC are described. Also in order to keep physical domain same, computational domain should be increased. Dependence of x-meshsize and z-meshsize is revealed, this relation is important for further simulation and gives good understanding on how parameters should be initialized. 
 	
 	\newpage
 	
@@ -307,8 +307,6 @@
 		E = Elementwise\_multiplication(u,f)\newline\newline
 	    }
 		\newpage
-
-	
 		
 \end{document}
 

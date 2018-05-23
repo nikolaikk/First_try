@@ -59,8 +59,8 @@ E = np.eye(Nx)
 #const_to_simplify = (E+x_mesh*L/(4*1j*ko))/(E-x_mesh*L/(4*1j*ko))
 L_l = L/(4*1j*ko)
 const_to_simplify = np.dot((E+x_mesh*L_l),np.linalg.inv(E-x_mesh*L_l))
-L_lmat = sp.io.loadmat('L_l.mat')['L_l']
-const_to_simplify1 = sp.io.loadmat('const_to_simplify.mat')['const_to_simplify']
+# L_lmat = sp.io.loadmat('L_l.mat')['L_l']
+# const_to_simplify1 = sp.io.loadmat('const_to_simplify.mat')['const_to_simplify']
 
 #const_to_simplify(find(const_to_simplify<1e-14))=0
 
